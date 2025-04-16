@@ -1,0 +1,285 @@
+
+# ~/.bashrc: executed by bash(1) for non-login shells.
+
+###############################################################################
+# 1. Early Exit for Non-Interactive Shells
+###############################################################################
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+
+###############################################################################
+# 2. Environment Variables
+###############################################################################
+# Use Nano as the default text editor for commands like crontab -e, git commit, etc.
+export EDITOR="nano"
+export VISUAL="nano"
+
+# Ensure ~/bin is in the PATH for easy execution of personal scripts
+PATH="$HOME/bin:$PATH"
+
+# NVM (Node Version Manager) Setup
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"   # Loads NVM
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"   # NVM auto-completion
+
+
+###############################################################################
+# 3. History Configuration
+###############################################################################
+# Ignore commands that begin with a space and remove older duplicates, keeping only the most recent occurrence.
+export HISTCONTROL=ignorespace:erasedups
+
+# Set history size
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# Set history format to include timestamps
+HISTTIMEFORMAT="%Y-%m-%d %T "
+
+# Make all open shells share history in real-time
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+
+# Append to history, rather than overwriting
+shopt -s histappend
+
+# colored history output
+h () {                          # coloured "history" with timestamps
+  local RESET=$'\e[0m'          # reset / normal
+  local YEL=$'\e[1;33m'         # bright yellow
+  local CYA=$'\e[1;36m'         # bright cyan
+
+  history |
+  awk -v y="$YEL"  -v c="$CYA"  -v r="$RESET" '
+  {
+      num = $1                               # history number
+
+      # Detect whether HISTTIMEFORMAT is active (YYYY‑MM‑DD HH:MM:SS pattern)
+      if ($2 ~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ && $3 ~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/) {
+          ts  = $2 " " $3                    # timestamp string
+          cmd_start = index($0, $4)          # command begins at field 4
+      } else {
+          ts  = ""                           # no timestamp field
+          cmd_start = index($0, $2)          # command begins at field 2
+      }
+
+      cmd = substr($0, cmd_start)            # full command text
+      colour = (cmd ~ /^git/) ? c : y        # git commands = cyan, else yellow
+
+      printf "%s%5s%s  %s%s%s  %s\n",
+             colour, num, r,                 # coloured number
+             (ts ? c ts r "  " : ""),        # coloured timestamp (if present)
+             "", "",                         # placeholders (keeps printf tidy)
+             cmd                              # the command itself
+  }'
+}
+
+
+###############################################################################
+# 4. Shell Options
+###############################################################################
+# Correct minor directory typos for 'cd'
+shopt -s cdspell
+
+# Resize checks: update LINES and COLUMNS after each command
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+
+# Make 'less' more friendly for non-text input files (like .tar.)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+
+###############################################################################
+# 5. Debian/Ubuntu chroot Detection (for prompts)
+###############################################################################
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+
+###############################################################################
+# 6. Prompt Configuration
+###############################################################################
+# If the terminal is xterm-color or *-256color, assume color prompt
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# Uncomment for a colored prompt, if the terminal supports it
+# force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48 (ISO/IEC-6429). (Lack of such support is extremely rare,
+	# and such a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+# Colored vs. plain prompt
+if [ "$color_prompt" = yes ]; then
+PS1='${debian_chroot:+($debian_chroot)}\
+\[\033[01;32m\]\u\[\033[0m\]\
+\[\033[01;93m\]@\[\033[0m\]\
+\[\033[01;93m\]\h\[\033[0m\]:\
+\[\033[01;94m\]\w\[\033[0m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+unset color_prompt force_color_prompt
+
+# If xterm or rxvt, set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+
+###############################################################################
+# 7. ls and grep Aliases (Color Support)
+###############################################################################
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    # Uncomment for colored grep
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+
+###############################################################################
+# 8. GCC (GNU Compiler Collection) Color for Warnings and Errors
+###############################################################################
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+
+###############################################################################
+# 9. Alerts & Other Aliases
+###############################################################################
+# Alert for long-running commands: e.g., "sleep 10; alert"
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
+"$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Source ~/.bash_aliases (see file for further aliases)
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+
+###############################################################################
+# 10. Programmable Completion
+###############################################################################
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+###############################################################################
+# 11. Git-Aware Prompt Enhancements                                           #
+###############################################################################
+# Functions to display Git branch and status in the prompt
+parse_git_branch() {
+  # If in a Git repo, outputs " (branchName)"
+  git branch 2>/dev/null | grep '*' | sed 's/* \(.*\)/ (\1)/'
+}
+
+parse_git_status() {
+  # Outputs " +" if there are uncommitted changes
+  git status --porcelain 2>/dev/null | grep -q '^' && echo ' +'
+}
+
+# Define color variables for prompt
+# Define color variables for prompt
+BOLD_RED="\[\033[1;31m\]"
+BOLD_GREEN="\[\033[1;32m\]"
+BOLD_BRIGHT_YELLOW="\[\033[1;93m\]"
+BOLD_BRIGHT_BLUE="\[\033[1;94m\]"
+RESET="\[\033[0m\]"  # Typically enough for reset
+
+
+# (Optional) Set the terminal title to user@host:dir on each prompt
+PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+
+# Override the default prompt with a Git-aware, color prompt
+export PS1="${BOLD_GREEN}\u${BOLD_BRIGHT_YELLOW}@\h${BOLD_BRIGHT_BLUE}:\w"\
+"${BOLD_BRIGHT_YELLOW}\$(parse_git_branch)"\
+"${BOLD_RED}\$(parse_git_status)"\
+"${RESET}\$ "
+
+
+###############################################################################
+#12.  Special Functions                                                       #
+###############################################################################
+# Extracts any archive(s) (if unp isn't installed)
+extract() {
+	for archive in "$@"; do
+		if [ -f "$archive" ]; then
+			case $archive in
+			*.tar.bz2) tar xvjf $archive ;;
+			*.tar.gz) tar xvzf $archive ;;
+			*.bz2) bunzip2 $archive ;;
+			*.rar) rar x $archive ;;
+			*.gz) gunzip $archive ;;
+			*.tar) tar xvf $archive ;;
+			*.tbz2) tar xvjf $archive ;;
+			*.tgz) tar xvzf $archive ;;
+			*.zip) unzip $archive ;;
+			*.Z) uncompress $archive ;;
+			*.7z) 7z x $archive ;;
+			*) echo "don't know how to extract '$archive'..." ;;
+			esac
+		else
+			echo "'$archive' is not a valid file!"
+		fi
+	done
+}
+
+# Searches for text in all files in the current folder
+ftext() {
+	# -i case-insensitive
+	# -I ignore binary files
+	# -H causes filename to be printed
+	# -r recursive search
+	# -n causes line number to be printed
+	# optional: -F treat search term as a literal, not a regular expression
+	# optional: -l only print filenames and not the matching lines ex. grep -irl "$1" *
+	grep -iIHrn --color=always "$1" . | less -r
+}
+
+# Copy file with a progress bar
+cpp() {
+    set -e
+    strace -q -ewrite cp -- "${1}" "${2}" 2>&1 |
+    awk '{
+        count += $NF
+        if (count % 10 == 0) {
+            percent = count / total_size * 100
+            printf "%3d%% [", percent
+            for (i=0;i<=percent;i++)
+                printf "="
+            printf ">"
+            for (i=percent;i<100;i++)
+                printf " "
+            printf "]\r"
+        }
+    }
+    END { print "" }' total_size="$(stat -c '%s' "${1}")" count=0
+}
