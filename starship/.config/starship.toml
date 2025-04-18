@@ -1,0 +1,75 @@
+###############################################################################
+# Starship prompt – matches colours from your Bash PS1                        #
+# Save as ~/.config/starship.toml (managed via ~/.dotfiles)                   #
+###############################################################################
+
+# ---------- GLOBAL SETTINGS --------------------------------------------------
+add_newline = false          # keep prompt on one line
+# (optional) minimal right‑padding between modules
+# prompt_order = []         # let Starship default order work
+
+# ---------- FORMAT STRING ----------------------------------------------------
+# Build the prompt from individual modules.
+# ($style placeholders pick up per‑module colour definitions below)
+format = """\
+[ $username]($style)\
+[$hostname]($style)\
+[$directory]($style)\
+[$git_branch]($style)\
+[$git_status]($style)\
+$character"""
+
+# ---------- MODULES ----------------------------------------------------------
+
+[username]
+show_always = true           # show even when not root / ssh
+style = "bold bright-green"
+format = "$user"
+
+[hostname]
+style = "bold bright-yellow"
+ssh_only = false
+format = "@$hostname "
+
+[directory]
+style = "bold bright-blue"
+truncate_to_repo = true      # show full path inside a Git repo
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = ""                  # no "" symbol (can set to " " if you like)
+style = "bold bright-yellow"
+format = "[$branch]($style) "
+
+[git_status]
+style = "bright-red"
+format = "[$all_status$ahead_behind]($style)"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+modified = "+"
+untracked = "?"
+staged    = "●"
+conflicted = "×"
+# remove fields you don’t want – Starship skips empty ones
+
+[character]
+success_symbol = "[\\$](bright-blue)"
+error_symbol   = "[\\$](bright-red)"
+
+# ---------- OPTIONAL EXTRAS --------------------------------------------------
+# Uncomment any of these sections if you want the info in the prompt.
+
+# [python]
+# symbol = "🐍 "
+# style = "bright-yellow"
+
+# [nodejs]
+# symbol = "⬢ "
+# style = "bright-green"
+
+# [battery]
+# disabled = false
+# full_symbol = "🔋"
+# charging_symbol = "⚡"
+# discharging_symbol = "🔌"
