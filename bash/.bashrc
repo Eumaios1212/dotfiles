@@ -39,8 +39,7 @@ HISTSIZE=1000
 HISTFILESIZE=2000
 HISTTIMEFORMAT="%Y-%m-%d %T "			# timestamps in history
 shopt -s histappend				# append rather than overwrite
-export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
-
+export PROMPT_COMMAND='history -a; history -n'
 
 ###############################################################################
 # 5. Shell options
