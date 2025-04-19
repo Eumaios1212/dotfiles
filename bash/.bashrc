@@ -15,6 +15,8 @@ esac
 export EDITOR="nano"
 export VISUAL="nano"
 
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
 # Add ~/bin to PATH
 PATH="$HOME/bin:$PATH"
 
@@ -61,33 +63,33 @@ fi
 # 7. Prompt configuration (Git-Aware)
 ###############################################################################
 # Enable colour prompt on colour terminals
-case "$TERM" in xterm-color|*-256color) color_prompt=yes;; esac
-if [ -n "$force_color_prompt" ] && tput setaf 1 >&/dev/null; then
-    color_prompt=yes
-fi
+#case "$TERM" in xterm-color|*-256color) color_prompt=yes;; esac
+#if [ -n "$force_color_prompt" ] && tput setaf 1 >&/dev/null; then
+#    color_prompt=yes
+#fi
 
 # Colour variables
-BOLD_RED="\[\033[1;31m\]"
-BOLD_GREEN="\[\033[1;32m\]"
-BOLD_YEL="\[\033[1;93m\]"
-BOLD_BLU="\[\033[1;94m\]"
-RESET="\[\033[0m\]"
+#BOLD_RED="\[\033[1;31m\]"
+#BOLD_GREEN="\[\033[1;32m\]"
+#BOLD_YEL="\[\033[1;93m\]"
+#BOLD_BLU="\[\033[1;94m\]"
+#RESET="\[\033[0m\]"
 
 # Window title
-PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"; '"$PROMPT_COMMAND"
+#PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"; '"$PROMPT_COMMAND"
 
 # Build PS1 (uses parse_git_branch / parse_git_status from ~/.bash_functions)
-export PS1="${BOLD_GREEN}\u${BOLD_YEL}@\h${BOLD_BLU}:\w"\
-"${BOLD_YEL}\$(parse_git_branch)"\
-"${BOLD_RED}\$(parse_git_status)"\
-"${RESET}\$ "
+#export PS1="${BOLD_GREEN}\u${BOLD_YEL}@\h${BOLD_BLU}:\w"\
+#"${BOLD_YEL}\$(parse_git_branch)"\
+#"${BOLD_RED}\$(parse_git_status)"\
+#"${RESET}\$ "
 
 # Title fix for xterm / rxvt
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-esac
+#case "$TERM" in
+#xterm*|rxvt*)
+#    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+#    ;;
+#esac
 
 
 ###############################################################################
@@ -127,6 +129,16 @@ if ! shopt -oq posix; then
 fi
 
 ###############################################################################
-# 12. Host‑Specific Overrides (optional)
+# 12. Host‑Specific Overrides
 ###############################################################################
 [ -f ~/.bashrc.local ] && . ~/.bashrc.local
+
+
+###############################################################################
+# 13. Starship
+###############################################################################
+export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+if command -v starship &>/dev/null; then
+    eval "$(starship init bash)"
+fi
+#eval "$(starship init bash)"      # ← NOTHING must come after this
