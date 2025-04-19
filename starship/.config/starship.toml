@@ -6,7 +6,7 @@ format = """
 [┣─system─❯](bold bright-yellow)$os$hostname
 [┣─network❯](bold cyan) $localip
 [┣─path───❯](bold bright-blue) \
-$directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$docker_context$nodejs
+$directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$nodejs
 [╰─cmd────❯](bold green)$character
 """
 # format = "$all"               # Starship default (every enabled module)
@@ -96,6 +96,7 @@ symbol             = " "
 format = "on 🐳  [$symbol$context]($style) "
 #format             = "via [$symbol$context]($style) "
 style              = "blue bold"
+show_default	   = true				# ← show “default” too
 only_with_files    = true
 detect_files       = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 detect_folders     = []
