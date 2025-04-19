@@ -3,9 +3,9 @@
 ###############################################################################
 format = """
 [╭─user───❯](green bold) $username
-[┣─system─❯](bold bright-yellow) $hostname
+[┣─system─❯](bold bright-yellow)$os$hostname
 [┣─network❯](bold cyan) $localip
-[┣─path❯](bold bright-blue) \
+[┣─path───❯](bold bright-blue) \
 $directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$docker_context$nodejs
 [╰─cmd────❯](bold green)$character
 """
@@ -13,43 +13,49 @@ $directory$rust$git_branch$git_status$package$golang$terraform$docker_context$py
 
 
 ###############################################################################
-# 1. Local IPv4 / IPv6 address
-###############################################################################
-[localip]
-ssh_only = false                             # show even on local sessions
-format   = "📟 [$localipv4](bold cyan) "     # emoji + coloured IP
-disabled = false                             # set true to hide
-
-
-###############################################################################
-# 2. Username
+# 1. Username
 ###############################################################################
 [username]
-style_user   = "green bold"                # normal user colour
-style_root   = "red bold"                  # root colour
-format       = "[$user]($style) "          # surrounding colour block
-show_always  = true                        # show even if not SSH
-disabled     = false                       # master switch
+style_user   = "green bold"                                      # normal user colour
+style_root   = "red bold"                                        # root colour
+#format       = "[$user]($style) "                               # surrounding colour block
+format       = "[\uF21B ](green bold) [$user]($style) "          # spy symbol
+
+show_always  = true                                              # show even if not SSH
+disabled     = false                                             # master switch
 
 
 ###############################################################################
-# 3. Hostname
+# 2. Hostname
 ###############################################################################
 [hostname]
-ssh_only = false                                  # show locally too
-format   = "on [$hostname](bold bright-yellow) "  # leading “on”, trailing space
-trim_at  = "."                                    # drop domain part
+ssh_only = false                                        # show locally too
+format   = "on [$hostname](bold bright-yellow) "        # leading “on”, trailing space
+trim_at  = "."                                          # drop domain part
 disabled = false
 
+###############################################################################
+# 3. Operating System
+###############################################################################
+[os]                                                    # built‑in module
+format  = " [$symbol]($style) " # how the logo is rendered
+style   = "bold bright‑yellow"          # colour
+disabled = false
+
+# Hard‑override the automatic choice ────────────────
+[os.symbols]
+Ubuntu = "[ ](bold bright-yellow)"        # nf-linux-ubuntu logo
+Debian = "[ ](bold bright-yellow)"        # nf-linux-debian swirl (leave as‑is if you still want it)
+
 
 ###############################################################################
-# 4. Prompt Character
+# 4. Local IPv4 / IPv6 address
 ###############################################################################
-[character]
-# success_symbol appears when previous command exit‑code == 0
-success_symbol = "[✦](bold green)"
-# error_symbol appears when exit‑code != 0
-error_symbol   = "[✗](bold red)"
+[localip]
+ssh_only = false						# show even on local sessions
+#format   = "📟 [$localipv4](bold cyan) "     			# emoji + coloured IP
+format   = "[\uEF09 ](bold cyan) [$localipv4](bold cyan) "	# network symbol 
+disabled = false						# set true to hide
 
 
 ###############################################################################
@@ -63,7 +69,17 @@ style             = "bold bright-blue"
 
 
 ###############################################################################
-# 6. Command duration (shown if > 4 ms)
+# 6. Prompt Character
+###############################################################################
+[character]
+# success_symbol appears when previous command exit‑code == 0
+success_symbol = "[ ✦](bold green)"
+# error_symbol appears when exit‑code != 0
+error_symbol   = "[ ✗](bold red)"
+
+
+###############################################################################
+# 7. Command duration (shown if > 4 ms)
 ###############################################################################
 [cmd_duration]
 min_time          = 4
@@ -73,7 +89,7 @@ disabled          = false
 
 
 ###############################################################################
-# 7. Docker context (visible only when matching files exist)
+# 8. Docker context (visible only when matching files exist)
 ###############################################################################
 [docker_context]
 symbol             = " "
@@ -86,7 +102,7 @@ disabled           = false
 
 
 ###############################################################################
-# 8. Language/tool symbols (coloured by the module's own defaults)
+# 9. Language/tool symbols (coloured by the module's own defaults)
 ###############################################################################
 [aws]
 symbol = "  "
