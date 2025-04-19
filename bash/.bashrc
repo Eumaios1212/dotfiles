@@ -3,9 +3,14 @@
 ###############################################################################
 # 1. Early exit for non‑interactive shells
 ###############################################################################
+# ─── Ensure /usr/local/bin is in root's PATH ──────────────────────────
+if [ "$(id -u)" -eq 0 ] && ! printf '%s\n' "$PATH" | grep -q '/usr/local/bin'; then
+    PATH="/usr/local/bin:$PATH"
+fi
+
 case $- in
-    *i*) ;;      # interactive
-      *) return;;# non‑interactive
+    *i*) ;;      	# interactive
+      *) return;;	# non‑interactive
 esac
 
 
