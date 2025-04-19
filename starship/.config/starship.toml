@@ -1,5 +1,5 @@
 ###############################################################################
-# 0. Example custom prompt layouts (commented out)
+# 0. Custom prompt layout
 ###############################################################################
 format = """
 [╭─user───❯](green bold) $username
@@ -7,7 +7,7 @@ format = """
 [┣─network❯](bold cyan) $localip
 [┣─path❯](bold bright-blue) \
 $directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$docker_context$nodejs
-[╰─cmd────❯](bold green)
+[╰─cmd────❯](bold green)$character
 """
 # format = "$all"               # Starship default (every enabled module)
 
@@ -16,9 +16,9 @@ $directory$rust$git_branch$git_status$package$golang$terraform$docker_context$py
 # 1. Local IPv4 / IPv6 address
 ###############################################################################
 [localip]
-ssh_only = false                           # show even on local sessions
+ssh_only = false                             # show even on local sessions
 format   = "📟 [$localipv4](bold cyan) "     # emoji + coloured IP
-disabled = false                           # set true to hide
+disabled = false                             # set true to hide
 
 
 ###############################################################################
@@ -36,23 +36,20 @@ disabled     = false                       # master switch
 # 3. Hostname
 ###############################################################################
 [hostname]
-ssh_only = false                           # show locally too
+ssh_only = false                                  # show locally too
 format   = "on [$hostname](bold bright-yellow) "  # leading “on”, trailing space
-trim_at  = "."                             # drop domain part
+trim_at  = "."                                    # drop domain part
 disabled = false
 
 
 ###############################################################################
-# 4. Prompt character (last symbol on the line)
+# 4. Prompt Character
 ###############################################################################
-# The name of the module we are configuring:
 [character]
 # success_symbol appears when previous command exit‑code == 0
-# The "success_symbol" segment is being set to "➜" with the color "bold green"
-success_symbol = "[﬌](bold green)"
+success_symbol = "[✦](bold green)"
 # error_symbol appears when exit‑code != 0
 error_symbol   = "[✗](bold red)"
-# ✦ Alternatives:      ➜  ❯  etc.
 
 
 ###############################################################################
@@ -61,7 +58,7 @@ error_symbol   = "[✗](bold red)"
 [directory]
 read_only         = " "                   # padlock icon
 truncation_length = 10                     # max number of parent dirs shown
-truncate_to_repo  = false                   # stop at Git repo root
+truncate_to_repo  = false                  # stop at Git repo root
 style             = "bold bright-blue"
 
 
