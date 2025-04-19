@@ -93,13 +93,13 @@ disabled          = false
 ###############################################################################
 [docker_context]
 symbol             = " "
-format = "on 🐳  [$symbol$context]($style) "
+format             = "on 🐳  [$symbol$context]($style) "
 #format             = "via [$symbol$context]($style) "
 style              = "blue bold"
 show_default	   = true				# ← show “default” too
 only_with_files    = true
 detect_files       = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
-detect_folders     = []
+#detect_folders     = []
 disabled           = false
 
 
