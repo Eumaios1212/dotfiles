@@ -1,75 +1,157 @@
 ###############################################################################
-# Starship prompt – matches colours from your Bash PS1                        #
-# Save as ~/.config/starship.toml (managed via ~/.dotfiles)                   #
+# 0. Example custom prompt layouts (commented out)
 ###############################################################################
+format = """
+[╭─user───❯](green bold) $username
+[┣─system─❯](bold bright-yellow) $hostname
+[┣─network❯](bold cyan) $localip
+[┣─path❯](bold bright-blue) \
+$directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$docker_context$nodejs
+[╰─cmd────❯](bold green)
+"""
+# format = "$all"               # Starship default (every enabled module)
 
-# ---------- GLOBAL SETTINGS --------------------------------------------------
-add_newline = false          # keep prompt on one line
-# (optional) minimal right‑padding between modules
-# prompt_order = []         # let Starship default order work
 
-# ---------- FORMAT STRING ----------------------------------------------------
-# Build the prompt from individual modules.
-# ($style placeholders pick up per‑module colour definitions below)
-format = """\
-[ $username]($style)\
-[$hostname]($style)\
-[$directory]($style)\
-[$git_branch]($style)\
-[$git_status]($style)\
-$character"""
+###############################################################################
+# 1. Local IPv4 / IPv6 address
+###############################################################################
+[localip]
+ssh_only = false                           # show even on local sessions
+format   = "📟 [$localipv4](bold cyan) "     # emoji + coloured IP
+disabled = false                           # set true to hide
 
-# ---------- MODULES ----------------------------------------------------------
 
+###############################################################################
+# 2. Username
+###############################################################################
 [username]
-show_always = true           # show even when not root / ssh
-style = "bold bright-green"
-format = "$user"
+style_user   = "green bold"                # normal user colour
+style_root   = "red bold"                  # root colour
+format       = "[$user]($style) "          # surrounding colour block
+show_always  = true                        # show even if not SSH
+disabled     = false                       # master switch
 
+
+###############################################################################
+# 3. Hostname
+###############################################################################
 [hostname]
-style = "bold bright-yellow"
-ssh_only = false
-format = "@$hostname "
+ssh_only = false                           # show locally too
+format   = "on [$hostname](bold bright-yellow) "  # leading “on”, trailing space
+trim_at  = "."                             # drop domain part
+disabled = false
 
-[directory]
-style = "bold bright-blue"
-truncate_to_repo = true      # show full path inside a Git repo
-truncation_length = 3
-truncation_symbol = "…/"
 
-[git_branch]
-symbol = ""                  # no "" symbol (can set to " " if you like)
-style = "bold bright-yellow"
-format = "[$branch]($style) "
-
-[git_status]
-style = "bright-red"
-format = "[$all_status$ahead_behind]($style)"
-ahead = "⇡${count}"
-behind = "⇣${count}"
-modified = "+"
-untracked = "?"
-staged    = "●"
-conflicted = "×"
-# remove fields you don’t want – Starship skips empty ones
-
+###############################################################################
+# 4. Prompt character (last symbol on the line)
+###############################################################################
+# The name of the module we are configuring:
 [character]
-success_symbol = "[\\$](bright-blue)"
-error_symbol   = "[\\$](bright-red)"
+# success_symbol appears when previous command exit‑code == 0
+# The "success_symbol" segment is being set to "➜" with the color "bold green"
+success_symbol = "[﬌](bold green)"
+# error_symbol appears when exit‑code != 0
+error_symbol   = "[✗](bold red)"
+# ✦ Alternatives:      ➜  ❯  etc.
 
-# ---------- OPTIONAL EXTRAS --------------------------------------------------
-# Uncomment any of these sections if you want the info in the prompt.
 
-# [python]
-# symbol = "🐍 "
-# style = "bright-yellow"
+###############################################################################
+# 5. Working directory
+###############################################################################
+[directory]
+read_only         = " "                   # padlock icon
+truncation_length = 10                     # max number of parent dirs shown
+truncate_to_repo  = false                   # stop at Git repo root
+style             = "bold bright-blue"
 
-# [nodejs]
-# symbol = "⬢ "
-# style = "bright-green"
 
-# [battery]
-# disabled = false
-# full_symbol = "🔋"
-# charging_symbol = "⚡"
-# discharging_symbol = "🔌"
+###############################################################################
+# 6. Command duration (shown if > 4 ms)
+###############################################################################
+[cmd_duration]
+min_time          = 4
+show_milliseconds = false
+style             = "bold italic red"
+disabled          = false
+
+
+###############################################################################
+# 7. Docker context (visible only when matching files exist)
+###############################################################################
+[docker_context]
+symbol             = " "
+format             = "via [$symbol$context]($style) "
+style              = "blue bold"
+only_with_files    = true
+detect_files       = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+detect_folders     = []
+disabled           = false
+
+
+###############################################################################
+# 8. Language/tool symbols (coloured by the module's own defaults)
+###############################################################################
+[aws]
+symbol = "  "
+[conda]
+symbol = " "
+[dart]
+symbol = " "
+[elixir]
+symbol = " "
+[elm]
+symbol = " "
+[git_branch]
+symbol = " "
+[golang]
+symbol = " "
+[hg_branch]
+symbol = " "
+[java]
+symbol = " "
+[julia]
+symbol = " "
+[memory_usage]
+symbol = "󰍛 "
+[nim]
+symbol = " "
+[nix_shell]
+symbol = " "
+[package]
+symbol = "󰏗 "
+[perl]
+symbol = " "
+[php]
+symbol = " "
+
+# --- Python ---------------------------------------------------------------
+[python]
+symbol          = " "
+#pyenv_version_name = true
+format          = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
+style           = "bold yellow"
+pyenv_prefix    = "venv "
+python_binary   = ["./venv/bin/python", "python", "python3", "python2"]
+detect_extensions = ["py"]
+version_format  = "v${raw}"
+
+[ruby]
+symbol = " "
+[rust]
+symbol = " "
+[scala]
+symbol = " "
+[shlvl]
+symbol = " "
+[swift]
+symbol = "ﯣ "
+
+# --- Node.js --------------------------------------------------------------
+[nodejs]
+format          = "via [ Node.js $version](bold green) "
+detect_files    = ["package.json", ".node-version"]
+detect_folders  = ["node_modules"]
+
+###############################################################################
+# End of file
+###############################################################################
