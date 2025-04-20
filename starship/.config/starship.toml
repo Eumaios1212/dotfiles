@@ -93,8 +93,8 @@ disabled          = false
 ###############################################################################
 [docker_context]
 symbol             = " "
-format             = "on $symbol [$context]($style) "
-#format             = "via [$symbol$context]($style) "
+#format             = "on $symbol [$context]($style) "
+format             = "on [$symbol$context]($style) "
 style              = "blue bold"
 only_with_files    = true
 detect_files       = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
