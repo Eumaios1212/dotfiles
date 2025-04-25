@@ -139,6 +139,17 @@ fi
 [ -f ~/.bashrc.local ] && . ~/.bashrc.local
 
 
+
+# ─── Conda initialise ─────────────────────────────────────────────────────────
+# >>> conda initialize >>>
+if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
+    source "$HOME/anaconda3/etc/profile.d/conda.sh"
+    __conda_setup="$("$HOME/anaconda3/bin/conda" shell.bash hook 2>/dev/null)"
+    eval "$__conda_setup"
+    unset __conda_setup
+fi
+# <<< conda initialize <<<
+# ───────────────────────────────────────────────────────────────────────────────
 ###############################################################################
 # 13. Starship
 ###############################################################################
