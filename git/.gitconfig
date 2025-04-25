@@ -1,3 +1,7 @@
 [user]
 	name = Eumaios1212
 	email = eumaios1212@protonmail.com
+
+
+[core]
+    fileMode = false
