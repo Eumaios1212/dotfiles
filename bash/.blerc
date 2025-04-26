@@ -1,0 +1,26 @@
+# ~/.blerc  ─────────────────────────────────────────────
+
+bleopt complete_auto_complete=			# Autocomplete 1 = ON, blank = off
+
+
+# Disable the automatic MULTILINE banner
+#bleopt line_limit_length=0
+
+# Fish-style history search on Ctrl-R / Ctrl-S
+#ble-bind -f 'C-r' history-search-backward
+#ble-bind -f 'C-s' history-search-forward
+
+# Cursor: block in command/visual, beam in insert
+#bleopt cursor_shape='block beam'
+
+# Autosuggestion (hint) colour: light gray
+#ble-face auto_hint=242
+
+# Yank/selection highlight: lime green
+#ble-face region_target=118
+
+# Visual bell: flash panel at right edge
+#bleopt vbell_style='panel right'
+
+# Default to Vi insert mode (uncomment if you want it)
+# ble-bind -m default/vi-insert
