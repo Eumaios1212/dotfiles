@@ -6,24 +6,25 @@ format = """
 [┣─system─❯](bold bright-yellow)$os$hostname
 [┣─network❯](bold cyan) $localip
 [┣─path───❯](bold bright-blue) \
-$directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$nodejs
-[╰─cmd────❯](bold green)$character
+$directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$nodejs$conda
+[╰─cmd────❯](bold green)$cmd_duration${custom.root_indicator}$character
 """
-# format = "$all"               # Starship default (every enabled module)
+
+# Global settings
 palette = "html"        # tell Starship which palette to pick up
+scan_timeout    = 30      # file-system scans (default 30 ms)
+command_timeout = 120     # external commands (default 500 ms)
+right_format = """$time"""
 
 ###############################################################################
 # 1. Username
 ###############################################################################
 [username]
-style_user   = "#ff00ff"                                      # normal user colour
-style_root   = "red bold"                                        # root colour
-#format       = "[$user]($style) "                               # surrounding colour block
-format       = "[\uF21B ](#ff00ff) [$user]($style) "          # spy symbol
-
-show_always  = true                                              # show even if not SSH
-disabled     = false                                             # master switch
-
+style_user   = "#ff00ff"                                # normal user colour
+style_root   = "red bold"                               # root colour
+format       = "[\uF21B ](#ff00ff) [$user]($style) "    # spy symbol
+show_always  = true                                     # show even if not SSH
+disabled     = false                                    # master switch
 
 ###############################################################################
 # 2. Hostname
@@ -38,85 +39,88 @@ disabled = false
 # 3. Operating System
 ###############################################################################
 [os]                                                    # built‑in module
-format  = " [$symbol]($style) " # how the logo is rendered
-style   = "bold bright‑yellow"          # colour
+format  = " [$symbol]($style) "				# how the logo is rendered
+style   = "bold bright‑yellow"				# colour
 disabled = false
 
-# Hard‑override the automatic choice ────────────────
 [os.symbols]
-Ubuntu = "[ ](bold bright-yellow)"        # nf-linux-ubuntu logo
-Debian = "[ ](bold bright-yellow)"        # nf-linux-debian swirl (leave as‑is if you still want it)
-
+Ubuntu = "[ ](bold bright-yellow)"			# nf-linux-ubuntu logo
+Debian = "[ ](bold bright-yellow)"			# nf-linux-debian swirl (leave as‑is if you still want it)
 
 ###############################################################################
 # 4. Local IPv4 / IPv6 address
 ###############################################################################
 [localip]
 ssh_only = false						# show even on local sessions
-#format   = "📟 [$localipv4](bold cyan) "     			# emoji + coloured IP
 format   = "[\uEF09 ](bold cyan) [$localipv4](bold cyan) "	# network symbol 
 disabled = false						# set true to hide
-
 
 ###############################################################################
 # 5. Working directory
 ###############################################################################
 [directory]
-read_only         = " "                   # padlock icon
-truncation_length = 10                     # max number of parent dirs shown
-truncate_to_repo  = false                  # stop at Git repo root
+read_only         = " "				# padlock icon
+truncation_length = 10					# max number of parent dirs shown
+truncate_to_repo  = false				# stop at Git repo root
 style             = "bold bright-blue"
-
 
 ###############################################################################
 # 6. Prompt Character
 ###############################################################################
 [character]
-# success_symbol appears when previous command exit‑code == 0
-success_symbol = "[ ✦](bold green)"
-# error_symbol appears when exit‑code != 0
-error_symbol   = "[ ✗](bold red)"
+success_symbol = "[ ✦](bold green)"			# previous command exit‑code == 0
+error_symbol   = "[ ✗](bold red)"			# previous command exit‑code != 0
 
+[custom.root_indicator]
+command = 'test "$EUID" -eq 0 && echo "⚡ "'
+when    = ""                 # always run
+style   = "bold red"
+shell   = ["bash", "--noprofile", "--norc"]
+
+[time]
+disabled     = false
+time_format  = "%H:%M"
+format       = "[⏰ $time]($style)"   # no trailing space; right prompt trims automatically
+style        = "dimwhite"
 
 ###############################################################################
 # 7. Command duration (shown if > 4 ms)
 ###############################################################################
 [cmd_duration]
-min_time          = 4
+min_time	  = 1200
 show_milliseconds = false
+format            = 'took [$duration]($style) '   # leading space is inside
 style             = "bold italic red"
 disabled          = false
 
-
 ###############################################################################
-# 8. Docker context (visible only when matching files exist)
+# 8. Language/tool symbols (coloured by the module's own defaults)
 ###############################################################################
+[aws]
+symbol = "  "
+[conda]
+symbol = "🐍 "
+style  = "bold green"
+format = 'via [$symbol$environment]($style) '
+[dart]
+symbol = " "
 [docker_context]
 symbol             = " "
-#format             = "on $symbol [$context]($style) "
 format             = "on [$symbol$context]($style) "
 style              = "blue bold"
 only_with_files    = true
 detect_files       = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 detect_folders     = []
 disabled           = false
-
-
-###############################################################################
-# 9. Language/tool symbols (coloured by the module's own defaults)
-###############################################################################
-[aws]
-symbol = "  "
-[conda]
-symbol = " "
-[dart]
-symbol = " "
 [elixir]
 symbol = " "
 [elm]
 symbol = " "
 [git_branch]
 symbol = " "
+[git_status]
+format = '[(\($all_status$ahead_behind\) )]($style)'
+style  = 'bold red'
 [golang]
 symbol = " "
 [hg_branch]
@@ -125,30 +129,38 @@ symbol = " "
 symbol = " "
 [julia]
 symbol = " "
+[kubernetes]
+symbol = "󱃾 "
+style  = "bold blue"
+format = 'on [$symbol$context( \($namespace\))]($style) '
+disabled = false
 [memory_usage]
 symbol = "󰍛 "
 [nim]
 symbol = " "
 [nix_shell]
 symbol = " "
+[nodejs]
+format = 'via [$symbol($version )]($style) '
+symbol = ""
+detect_files    = ["package.json", ".node-version"]
+detect_folders  = ["node_modules"]
 [package]
 symbol = "󰏗 "
 [perl]
 symbol = " "
 [php]
 symbol = " "
-
-# --- Python ---------------------------------------------------------------
 [python]
-symbol          = " "
-#pyenv_version_name = true
-format          = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
-style           = "bold yellow"
-pyenv_prefix    = "venv "
-python_binary   = ["./venv/bin/python", "python", "python3", "python2"]
-detect_extensions = ["py"]
-version_format  = "v${raw}"
-
+symbol			= " "
+#format			= 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
+format			= 'via [$symbol($virtualenv )($version )]($style)'
+style			= "limegreen"
+pyenv_prefix		= "venv "
+python_binary		= ["./venv/bin/python", "python3", "python2"]
+detect_extensions	= ["py"]
+detect_files		= ["pyproject.toml", "requirements.txt", ".venv"]
+version_format		= "v${raw}"
 [ruby]
 symbol = " "
 [rust]
@@ -159,12 +171,6 @@ symbol = " "
 symbol = " "
 [swift]
 symbol = "ﯣ "
-
-# --- Node.js --------------------------------------------------------------
-[nodejs]
-format          = "via [ Node.js $version](bold green) "
-detect_files    = ["package.json", ".node-version"]
-detect_folders  = ["node_modules"]
 
 ###############################################################################
 # End of file
