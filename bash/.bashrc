@@ -19,7 +19,6 @@ esac
 ###############################################################################
 export EDITOR="nano"
 export VISUAL="nano"
-
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # Add ~/bin to PATH
@@ -153,6 +152,8 @@ fi
 ###############################################################################
 # 13. Starship
 ###############################################################################
+source ~/.local/share/blesh/ble.sh	# Right-prompt support (Ble.sh)
+
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 if command -v starship &>/dev/null; then
     eval "$(starship init bash)"
