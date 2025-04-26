@@ -158,3 +158,4 @@ if command -v starship &>/dev/null; then
     eval "$(starship init bash)"
 fi
 #eval "$(starship init bash)"      # ← NOTHING must come after this
+export PATH="$HOME/.local/bin:$PATH"
