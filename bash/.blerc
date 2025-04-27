@@ -2,25 +2,24 @@
 
 bleopt complete_auto_complete=			# Autocomplete 1 = ON, blank = off
 
+bleopt prompt_ps1_transient=1			# Makes ble.sh respect external prompts
+						# e.g., Starship, Conda, NVM
 
-# Disable the automatic MULTILINE banner
-#bleopt line_limit_length=0
+#bleopt input_encoding=UTF-8			# Specifies the input encoding: "UTF-8" or "C"
+						# UTF-8 is standard for modern terminals
 
-# Fish-style history search on Ctrl-R / Ctrl-S
-#ble-bind -f 'C-r' history-search-backward
-#ble-bind -f 'C-s' history-search-forward
+#bleopt line_limit_length=			# Disable the automatic MULTILINE banner
 
-# Cursor: block in command/visual, beam in insert
-#bleopt cursor_shape='block beam'
+#ble-bind -f 'C-r' history-search-backward	# Fish-style history search on Ctrl-R
+#ble-bind -f 'C-s' history-search-forward	# On Ctrl-S
 
-# Autosuggestion (hint) colour: light gray
-#ble-face auto_hint=242
+#bleopt cursor_shape='block beam'		# Cursor: block in command/visual, beam in insert
 
-# Yank/selection highlight: lime green
-#ble-face region_target=118
+#ble-face auto_hint=242				# Autosuggestion (hint) colour: light gray
 
-# Visual bell: flash panel at right edge
-#bleopt vbell_style='panel right'
+#ble-face region_target=118			# Yank/selection highlight: lime green
 
-# Default to Vi insert mode (uncomment if you want it)
-# ble-bind -m default/vi-insert
+#bleopt vbell_style='panel right'		# Visual bell: flash panel at right edge
+
+#ble-bind -m default/vi-insert			# Default to Vi insert mode (uncomment if wanted)
+
