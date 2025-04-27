@@ -3,7 +3,7 @@
 ###############################################################################
 # 1. Early exit for non‑interactive shells
 ###############################################################################
-# ─── Ensure /usr/local/bin is in root's PATH ──────────────────────────
+# ─── Ensure /usr/local/bin is in root's PATH ────────────────────────────────
 if [ "$(id -u)" -eq 0 ] && ! printf '%s\n' "$PATH" | grep -q '/usr/local/bin'; then
     PATH="/usr/local/bin:$PATH"
 fi
@@ -13,6 +13,8 @@ case $- in
       *) return;;	# non‑interactive
 esac
 
+# ─── Source ble.sh with --noattach for interactive shells ───────────────────
+[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --noattach
 
 ###############################################################################
 # 2. Environment variables
@@ -27,15 +29,12 @@ PATH="$HOME/bin:$PATH"
 # NVM (Node Version Manager)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh"          ] && . "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-
 
 ###############################################################################
 # 3. Load Personal Libraries
 ###############################################################################
 [ -f ~/.bash_functions ] && . ~/.bash_functions
 [ -f ~/.bash_aliases   ] && . ~/.bash_aliases
-
 
 ###############################################################################
 # 4. History configuration
@@ -54,14 +53,12 @@ shopt -s cdspell       # fix minor cd typos
 shopt -s checkwinsize  # auto‑resize LINES/COLUMNS
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-
 ###############################################################################
 # 6. Debian chroot detection
 ###############################################################################
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
-
 
 ###############################################################################
 # 7. Prompt configuration (Git-Aware)
@@ -95,7 +92,6 @@ fi
 #    ;;
 #esac
 
-
 ###############################################################################
 # 8. Colour support for ls / grep
 ###############################################################################
@@ -107,12 +103,10 @@ if command -v dircolors &>/dev/null; then
     alias egrep='egrep --color=auto'
 fi
 
-
 ###############################################################################
 # 9. GCC coloured diagnostics
 ###############################################################################
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
 
 ###############################################################################
 # 10. Alert alias & user aliases
@@ -120,43 +114,41 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
 "$(history|tail -n1|sed -e '\''s/^\\s*[0-9]\\+\\s*//;s/[;&|]\\s*alert$//'\'')"'
 
-
 ###############################################################################
-# 11. Programmable completion
+# 11. Programmable completion (enable, if not using ble.sh autocompletion)
 ###############################################################################
-if ! shopt -oq posix; then
-  if   [ -f /usr/share/bash-completion/bash_completion ]; then
-       . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-       . /etc/bash_completion
-  fi
-fi
+#if ! shopt -oq posix; then
+#  if   [ -f /usr/share/bash-completion/bash_completion ]; then
+#       . /usr/share/bash-completion/bash_completion
+#  elif [ -f /etc/bash_completion ]; then
+#       . /etc/bash_completion
+#  fi
+#fi
 
 ###############################################################################
 # 12. Host‑Specific Overrides
 ###############################################################################
 [ -f ~/.bashrc.local ] && . ~/.bashrc.local
 
-
-
 # ─── Conda initialise ─────────────────────────────────────────────────────────
-# >>> conda initialize >>>
 if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
     source "$HOME/anaconda3/etc/profile.d/conda.sh"
     __conda_setup="$("$HOME/anaconda3/bin/conda" shell.bash hook 2>/dev/null)"
     eval "$__conda_setup"
     unset __conda_setup
 fi
-# <<< conda initialize <<<
 # ───────────────────────────────────────────────────────────────────────────────
 ###############################################################################
 # 13. Starship
 ###############################################################################
-source ~/.local/share/blesh/ble.sh	# Right-prompt support (Ble.sh)
-
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 if command -v starship &>/dev/null; then
     eval "$(starship init bash)"
 fi
 #eval "$(starship init bash)"      # ← NOTHING must come after this
 export PATH="$HOME/.local/bin:$PATH"
+
+###############################################################################
+# 14. Attach ble.sh after all other configurations, including Starship.
+###############################################################################
+[[ ! ${BLE_VERSION-} ]] || ble-attach
