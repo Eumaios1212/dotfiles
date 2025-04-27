@@ -5,8 +5,19 @@ bleopt complete_auto_complete=			# Autocomplete 1 = ON, blank = off
 bleopt prompt_ps1_transient=1			# Makes ble.sh respect external prompts
 						# e.g., Starship, Conda, NVM
 
+bleopt editor=nano				# Ensure nano is always used for ble.sh’s editor features
+						# regardless of other environment settings or 
+						# system defaults.
+
 #bleopt input_encoding=UTF-8			# Specifies the input encoding: "UTF-8" or "C"
 						# UTF-8 is standard for modern terminals
+
+#bleopt vbell_default_message=' ERROR! '		# Configure visual bell setting
+#bleopt vbell_duration=2000			# In milliseconds
+#bleopt vbell_align=center
+#ble-face vbell='reverse'			# Swap the fg and bg colors of message text
+#ble-face vbell_erase='bg=252'			# Specify bg color to “erase” visual bell message
+#ble-face vbell_flash='fg=green,reverse'		# Define styling for a flashing effect
 
 #bleopt line_limit_length=			# Disable the automatic MULTILINE banner
 
@@ -18,8 +29,6 @@ bleopt prompt_ps1_transient=1			# Makes ble.sh respect external prompts
 #ble-face auto_hint=242				# Autosuggestion (hint) colour: light gray
 
 #ble-face region_target=118			# Yank/selection highlight: lime green
-
-#bleopt vbell_style='panel right'		# Visual bell: flash panel at right edge
 
 #ble-bind -m default/vi-insert			# Default to Vi insert mode (uncomment if wanted)
 
