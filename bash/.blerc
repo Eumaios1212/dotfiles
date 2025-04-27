@@ -1,5 +1,8 @@
 # ~/.blerc  ─────────────────────────────────────────────
 
+# Full template: 
+# https://github.com/akinomyoga/ble.sh/blob/master/blerc.template
+
 bleopt complete_auto_complete=			# Autocomplete 1 = ON, blank = off
 
 bleopt prompt_ps1_transient=1			# Makes ble.sh respect external prompts
