@@ -1,8 +1,16 @@
 
 # My Custom Aliases
 
-alias update='sudo bash -c "apt update && apt upgrade && apt autoremove"'
-	#    Commands are all run within one sudo session.
+# Function for updates, since sudo is needed for apt, should not be used with pipx:
+update() {
+    # --- OS packages ---
+    sudo apt update           # refresh package lists
+    sudo apt upgrade -y       # upgrade packages
+    sudo apt autoremove -y    # clean leftovers
+
+    # --- pipx packages ---
+    pipx upgrade --include-injected --all
+}
 
 alias l='ls -ahlF --color=auto'
 	#    -a: Show all files (including hidden files whose names begin with a dot).
