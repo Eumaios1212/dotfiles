@@ -11,10 +11,10 @@ $directory$rust$git_branch$git_status$package$golang$kubernetes$terraform$docker
 """
 
 # Global settings
-palette = "html"        # tell Starship which palette to pick up
-scan_timeout    = 30      # file-system scans (default 30 ms)
-command_timeout = 120     # external commands (default 500 ms)
-right_format = """$time"""
+palette		= "html"				# tell Starship which palette to pick up
+scan_timeout    = 30					# file-system scans (default 30 ms)
+command_timeout = 120					# external commands (default 500 ms)
+right_format	= """$time"""
 
 ###############################################################################
 # 1. Username
@@ -39,13 +39,13 @@ disabled = false
 # 3. Operating System
 ###############################################################################
 [os]                                                    # built‑in module
-format  = " [$symbol]($style) "				# how the logo is rendered
-style   = "bold bright‑yellow"				# colour
+format	 = " [$symbol]($style) "				# how the logo is rendered
+style	 = "bold bright‑yellow"				# colour
 disabled = false
 
 [os.symbols]
-Ubuntu = "[ ](bold bright-yellow)"			# nf-linux-ubuntu logo
-Debian = "[ ](bold bright-yellow)"			# nf-linux-debian swirl (leave as‑is if you still want it)
+Ubuntu	 = "[ ](bold bright-yellow)"			# nf-linux-ubuntu logo
+Debian	 = "[ ](bold bright-yellow)"			# nf-linux-debian swirl (leave as‑is if you still want it)
 
 ###############################################################################
 # 4. Local IPv4 / IPv6 address
@@ -137,18 +137,12 @@ disabled = false
 detect_files      = ["k8s", "Chart.yaml", "helmfile.yaml"]
 detect_folders    = ["deployment", ".k8s"]
 [custom.linode]
-command = '''
-  # 1) use $LINODE_CLI_PROFILE if set, else fallback to "default"
-  if [ -n "$LINODE_CLI_PROFILE" ]; then
-    printf "%s" "$LINODE_CLI_PROFILE"
-  else
-    printf "default"
-  fi
-'''
-when      = 'command -v linode-cli'   # only run if CLI is installed
-symbol    = " "                     # nf-md-cloud (pick any icon you like)
-style     = "bold bright-blue"
-shell     = ["bash", "--noprofile", "--norc"]
+#description = "linode"
+#when      = 'command -v linode-cli'   # only run if CLI is installed
+#symbol    = " "                     # nf-md-cloud (pick any icon you like)
+#style     = "bold bright-blue"
+#shell     = ["bash", "--noprofile", "--norc"]
+#format	  = "[ $symbol$output ] "       # Explicitly define the output format
 [memory_usage]
 symbol = "󰍛 "
 [nim]
