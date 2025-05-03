@@ -9,7 +9,7 @@ update() {
     sudo apt autoremove -y    # clean leftovers
 
     # --- pipx packages ---
-    pipx upgrade --include-injected --all
+    pipx upgrade-all --include-injected
 }
 
 alias l='ls -ahlF --color=auto'
