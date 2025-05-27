@@ -1,6 +1,6 @@
 [user]
 	name = Eumaios1212
-	email = eumaios1212@protonmail.com
+	email = eumaios1212@proton.me
 	signingkey = 695AA4A0F1FFB55F
 
 
@@ -13,3 +13,5 @@
 	gpgsign = true
 [gpg "ssh"]
 	allowedSignersFile = /home/eumaios/.config/git/allowed_signers
+[init]
+	defaultBranch = master
