@@ -6,7 +6,7 @@ format = """
 [┣─system─❯](bold bright-yellow)$os$hostname
 [┣─network❯](bold cyan) $localip
 [┣─path───❯](bold bright-blue) \
-$directory$rust$git_branch$git_status$package$golang$kubernetes$terraform$docker_context$python$nodejs$conda
+$directory$rust$git_branch${custom.remote}$git_status$package$golang$kubernetes$terraform$docker_context$python$nodejs$conda
 [╰─cmd────❯](bold green)$cmd_duration${custom.root_indicator}$character
 """
 
@@ -116,9 +116,14 @@ disabled           = false
 symbol = " "
 [elm]
 symbol = " "
+[custom.remote]
+command = "git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD) 2>/dev/null || echo ''"
+when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1"
+format = "[ @$output]($style) "
+style = "bold red"
 [git_branch]
 symbol = " "
-format = '[$symbol$branch(:$remote_branch)]($style) '
+format = 'on [$symbol$branch]($style)'
 [git_status]
 format = '[(\($all_status$ahead_behind\) )]($style)'
 style  = 'bold red'
