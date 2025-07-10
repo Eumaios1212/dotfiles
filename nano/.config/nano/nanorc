@@ -1,11 +1,22 @@
-set linenumbers		# Turns on Nano’s absolute line-number column
+###############################################################################
+# Basics
+###############################################################################
+set linenumbers          # show absolute line numbers
 
 ###############################################################################
-# Hard-wrap at 80 columns (and re-wrap hotkey)
+# 80-column hard wrap and visual guide
 ###############################################################################
-set fill 80               # insert real newline at column 80
-bind M-Q justify main     # Alt-Q re-flows the current paragraph
+set fill 80              # insert real newline at 80
+set guidestripe 80       # draw a vertical guide at 80
+set stripecolor brightyellow,bold   # bright yellow stripe, bold face
 
-set guidestripe 80
-set stripecolor brightblack
-set autoindent
+###############################################################################
+# Whitespace helpers
+###############################################################################
+set autoindent           # keep indent on wrapped lines
+set whitespace trailing  # underline / colour trailing blanks
+set whitespacecolor brightred
+###############################################################################
+# Re-flow paragraph on Alt-Q
+###############################################################################
+bind M-Q justify main
