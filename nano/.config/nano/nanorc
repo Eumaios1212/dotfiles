@@ -5,3 +5,7 @@ set linenumbers		# Turns on Nano’s absolute line-number column
 ###############################################################################
 set fill 80               # insert real newline at column 80
 bind M-Q justify main     # Alt-Q re-flows the current paragraph
+
+set guidestripe 80
+set guidecolor brightblack
+set autoindent
