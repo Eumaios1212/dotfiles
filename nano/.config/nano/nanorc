@@ -1,22 +1,15 @@
 ###############################################################################
-# Basics
+# 80-column guide + hard wrap
 ###############################################################################
-set linenumbers          # show absolute line numbers
+set fill 80
+set guidestripe 80
+set stripecolor brightyellow bold
 
 ###############################################################################
-# 80-column hard wrap and visual guide
+# Show whitespace characters
 ###############################################################################
-set fill 80              # insert real newline at 80
-set guidestripe 80       # draw a vertical guide at 80
-set stripecolor brightyellow,bold   # bright yellow stripe, bold face
+set whitespace "·>"      # first glyph = space, second = tab
 
-###############################################################################
-# Whitespace helpers
-###############################################################################
-set autoindent           # keep indent on wrapped lines
-set whitespace trailing  # underline / colour trailing blanks
-set whitespacecolor brightred
-###############################################################################
-# Re-flow paragraph on Alt-Q
-###############################################################################
+set autoindent
+set linenumbers
 bind M-Q justify main
