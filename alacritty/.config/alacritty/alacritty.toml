@@ -20,7 +20,7 @@
 
 [window]
 
-opacity = 0.9
+#opacity = 0.9
 
 padding.x = 10
 padding.y = 10
@@ -30,10 +30,10 @@ decorations_theme_variant = "Light" # "Dark"
 
 [font]
 
-normal.family = "Cascadia Code PL"
-bold.family = "Cascadia Code PL"
-italic.family = "Cascadia Code PL"
-bold_italic.family = "Cascadia Code PL"
+normal.family = "FiraCode Nerd Font Mono Light"
+bold.family = "FiraCode Nerd Font Mono"
+italic.family = "FiraCode Nerd Font Mono"
+bold_italic.family = "FiraCode Nerd Font Mono"
 
 size = 15.0
 
