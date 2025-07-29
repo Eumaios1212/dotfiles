@@ -19,23 +19,32 @@
 # https://github.com/alacritty/alacritty/tree/master#configuration
 
 [window]
-
 #opacity = 0.9
-
 padding.x = 10
 padding.y = 10
-
 decorations = "Full"
 decorations_theme_variant = "Light" # "Dark"
 
 [font]
-
 normal.family = "FiraCode Nerd Font Mono Light"
 bold.family = "FiraCode Nerd Font Mono"
 italic.family = "FiraCode Nerd Font Mono"
 bold_italic.family = "FiraCode Nerd Font Mono"
-
 size = 15.0
+
+[selection]
+save_to_clipboard = true
+
+# Keybindings to mimic GNOME Terminal copy/paste
+[[keyboard.bindings]]
+key = "C"
+mods = "Control|Shift"
+action = "Copy"
+
+[[keyboard.bindings]]
+key = "V"
+mods = "Control|Shift"
+action = "Paste"
 
 # Tip: for inspiration, look for values in the source code files of your favorite VS Code themes, and use the color picker in
 # Google to test colors before setting a value, or simply using an editor such as VS Code where colors are displayed in a 
