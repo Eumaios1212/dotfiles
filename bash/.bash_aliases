@@ -49,11 +49,10 @@ alias pipe='systemctl --user restart pipewire pipewire-pulse'
 alias alert='notify‑send …'
 alias openports='netstat -nape --inet'   # show open TCP/UDP ports
 
-
-
 # aliases to show disk space and space used in a folder
 alias diskspace="du -S | sort -n -r |more"
 alias folders='du -h --max-depth=1'
 alias folderssort='find . -maxdepth 1 -type d -print0 | xargs -0 du -sk | sort -rn'
 alias mountedinfo='df -hT'
 
+alias shortcuts='echo "=== Aliases in .bash_aliases ==="; grep -E "^alias|^#|^[[:space:]]*#" ~/.bash_aliases -B 1 | less'
