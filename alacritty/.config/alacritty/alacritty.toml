@@ -290,7 +290,9 @@ hide_when_typing = true  # Default: false
 
 # Mouse bindings (actual bindings need to be defined as per user preference)
 # Example: bindings = [{ mouse = "Left", action = "Paste" }]
-bindings = []
+bindings = [
+    { mouse = "Right", action = "Paste" },
+]
 
 #########
 # HINTS #
