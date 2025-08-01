@@ -1,0 +1,6 @@
+curl
+git
+vim
+tmux
+htop
+base-devel
