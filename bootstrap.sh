@@ -61,10 +61,23 @@ run_profile_hooks() {
   done
 }
 
+# ----- Backup existing dotfiles that would block stow -----
+cleanup_conflicts() {
+  echo "🧹 Checking for conflicting dotfiles..."
+  for file in .bashrc .bash_logout .bash_profile .bash_aliases .bash_functions; do
+    target="$HOME/$file"
+    if [ -f "$target" ] && [ ! -L "$target" ]; then
+      echo "⚠️  Backing up $file → $file.backup"
+      mv "$target" "$target.backup"
+    fi
+  done
+}
+
 bootstrap_stow() {
   echo "🔗 Stowing dotfiles..."
+  cleanup_conflicts
   for dir in */; do
-    [[ "$dir" == "$APPS_DIR/" || "$dir" == "$HOOKS_DIR/" || ! -d "$dir" ]] && continue
+    [[ "$dir" == "apps/" || "$dir" == "install.d/" || ! -d "$dir" ]] && continue
     echo "➡️  Stowing ${dir%/}"
     stow --target="$HOME" "${dir%/}"
   done
