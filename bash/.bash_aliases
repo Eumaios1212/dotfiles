@@ -1,16 +1,5 @@
 
-# My Custom Aliases
-
-# Function for updates, since sudo is needed for apt, should not be used with pipx:
-update() {
-    # --- OS packages ---
-    sudo apt update           # refresh package lists
-    sudo apt upgrade -y       # upgrade packages
-    sudo apt autoremove -y    # clean leftovers
-
-    # --- pipx packages ---
-    pipx upgrade-all --include-injected
-}
+# Custom Aliases
 
 alias l='ls -ahlF --color=auto'
 	#    -a: Show all files (including hidden files whose names begin with a dot).
@@ -33,7 +22,7 @@ alias sn='sudo nano'
 
 # Git aliases
 alias g='git'
-alias ga='git add .'
+alias ga='git add '
 alias gc='git commit -m'
 alias gd='git diff'
 alias gpl='git pull'
@@ -42,10 +31,6 @@ alias gst='git status'
 
 # Various
 alias pipe='systemctl --user restart pipewire pipewire-pulse'
-
-# Alerts & Other Aliases
-###############################################################################
-alias alert='notify‑send …'
 alias openports='netstat -nape --inet'   # show open TCP/UDP ports
 
 # Aliases to show disk space and space used in a folder
