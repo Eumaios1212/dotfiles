@@ -3,4 +3,4 @@ set -euo pipefail
 
 echo "💫 Installing Starship prompt..."
 
-curl -fsSL https://starship.rs/install.sh | bash -s -- -y
+curl -fsSL https://starship.rs/install.sh | sh -s -- -y
