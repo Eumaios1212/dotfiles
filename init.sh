@@ -9,13 +9,13 @@
 #     - Run bootstrap.sh to install packages and stow config files
 #
 # BASIC USAGE (default profile: "common"):
-#   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/.dotfiles/main/init.sh)
+#   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/main/init.sh)
 #
 # CUSTOM PROFILE (e.g., dev, server):
-#   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/.dotfiles/main/init.sh) dev
+#   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/main/init.sh) dev
 #
 # REQUIREMENTS:
-#   - SSH key access to: git@github.com:Eumaios1212/.dotfiles.git
+#   - SSH key access to: git@github.com:Eumaios1212/dotfiles.git
 #   - Must run as a regular user (not root)
 #   - sudo must be available and configured for the user
 #
@@ -26,7 +26,7 @@
 
 set -euo pipefail
 
-REPO_URL="git@github.com:Eumaios1212/.dotfiles.git"
+REPO_URL="git@github.com:Eumaios1212/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 PROFILE="${1:-common}"
 
