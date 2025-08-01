@@ -29,7 +29,7 @@ set -euo pipefail
 REPO_URL="git@github.com:Eumaios1212/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 PROFILE="${1:-common}"
-BRANCH="${DOTFILES_BRANCH:-main}"
+BRANCH="${DOTFILES_BRANCH:-master}"
 
 # ----- Detect package manager -----
 detect_pkgmgr() {
