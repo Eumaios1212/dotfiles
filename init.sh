@@ -3,25 +3,10 @@
 # init.sh - First-time setup script for new Linux servers
 #
 # HOW TO USE:
-#   Run this on a fresh Debian/Ubuntu or Arch Linux server to:
-#     - Install Git, curl, and GNU Stow
-#     - Clone your dotfiles repository into ~/.dotfiles using SSH
-#     - Run bootstrap.sh to install packages and stow config files
-#
-# BASIC USAGE (defaults to branch "main" and profile "common"):
-#   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/main/init.sh)
-#
-# CUSTOM BRANCH AND PROFILE:
-#   DOTFILES_BRANCH=dev-branch-name bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/dev-branch-name/init.sh) dev
-#
-# REQUIREMENTS:
-#   - SSH key access to: git@github.com:Eumaios1212/dotfiles.git
-#   - Must run as a regular user (not root)
-#   - sudo must be available and configured for the user
-#
-# NOTES:
-#   - This script auto-detects the package manager (APT or pacman)
-#   - Dotfiles will be installed using GNU Stow
+#   Run this on a fresh server to:
+#     - Install git, curl, stow
+#     - Prompt for which branch to use (or read DOTFILES_BRANCH)
+#     - Clone the repo and run bootstrap.sh with a selected profile
 # -----------------------------------------------------------------------------
 
 set -euo pipefail
@@ -29,7 +14,16 @@ set -euo pipefail
 REPO_URL="git@github.com:Eumaios1212/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 PROFILE="${1:-common}"
-BRANCH="${DOTFILES_BRANCH:-master}"
+
+# ----- Prompt for branch if not supplied via env -----
+prompt_for_branch() {
+  if [ -z "${DOTFILES_BRANCH:-}" ]; then
+    read -rp "🌿 Enter branch to clone (default: master): " input_branch
+    BRANCH="${input_branch:-master}"
+  else
+    BRANCH="$DOTFILES_BRANCH"
+  fi
+}
 
 # ----- Detect package manager -----
 detect_pkgmgr() {
@@ -79,6 +73,7 @@ run_bootstrap() {
 
 # ----- MAIN -----
 sudo -v
+prompt_for_branch
 PKGMGR=$(detect_pkgmgr)
 install_minimum_tools "$PKGMGR"
 clone_repo
