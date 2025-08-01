@@ -5,9 +5,17 @@
 # no exports, PATH mangling, or prompt definitions.
 # ---------------------------------------------------------------------------
 
-############################
-# 1. History helpers      #
-############################
+# Function for updates, since sudo is needed for apt, should not be used with pipx:
+update() {
+    # --- OS packages ---
+    sudo apt update           # refresh package lists
+    sudo apt upgrade -y       # upgrade packages
+    sudo apt autoremove -y    # clean leftovers
+
+    # --- pipx packages ---
+    pipx upgrade-all --include-injected
+}
+
 # Pretty, colourised `history` output with timestamps and Git‑line highlight.
 h() {
   local RESET=$'\e[0m'        # reset / normal
@@ -30,9 +38,6 @@ h() {
   }'
 }
 
-############################
-# 2. Archive utilities    #
-############################
 # Extract nearly any archive format with:  extract <file> [...]
 extract() {
   for archive in "$@"; do
@@ -55,17 +60,11 @@ extract() {
   done
 }
 
-############################
-# 3. Search helper        #
-############################
 # ftext <pattern> – colour‑grep recursively in current dir and page via less.
 ftext() {
   grep -iIHrn --color=always "$1" . | less -R
 }
 
-############################
-# 4. Copy helpers         #
-############################
 # cpp SRC DST  – copy with ASCII progress bar.
 cpp() {
   set -e
@@ -74,7 +73,6 @@ cpp() {
     (count % 10 == 0) {
       percent = count / total_size * 100
       printf "\r%3d%% [", percent
-      for (i=0;i<percent;i++) printf "="
       printf ">"
       for (i=percent;i<100;i++) printf " "
       printf "]"
@@ -82,9 +80,6 @@ cpp() {
     END { print "" }'
 }
 
-############################
-# 5. Networking helpers   #
-############################
 # whatismyip – internal & external IP display.
 whatsmyip() {
   echo -n "Internal IP: "
@@ -99,34 +94,6 @@ whatsmyip() {
 }
 alias whatismyip=whatsmyip
 
-############################
-# 6. Git‑prompt helpers   #
-############################
-parse_git_branch() {
-  git branch 2>/dev/null | grep '*' | sed 's/* \(.*\)/ (\1)/'
-}
-
-parse_git_status() {
-  git status --porcelain 2>/dev/null | grep -q '^' && echo ' +'
-}
-
-############################
-# 7. Git shortcuts        #
-############################
 # Quick add‑commit (gcom "msg") and add‑commit‑push (lazyg "msg").
 gcom()  { git add . && git commit -m "$1"; }
 lazyg() { git add . && git commit -m "$1" && git push; }
-
-############################
-# 8. Paste helper (Haste) #
-############################
-hb() {
-  local file="$1"
-  [[ -z $file ]] && { echo "No file path specified."; return 1; }
-  [[ ! -f $file ]] && { echo "File not found: $file"; return 1; }
-  local uri="http://bin.christitus.com/documents"
-  local response=$(curl -s -X POST -d @"$file" "$uri") || { echo "Upload failed"; return 1; }
-  local key=$(echo "$response" | jq -r '.key')
-  [[ $key == null ]] && { echo "Unexpected response"; return 1; }
-  echo "http://bin.christitus.com/$key"
-}
