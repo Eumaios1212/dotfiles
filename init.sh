@@ -64,11 +64,16 @@ clone_repo() {
 
 run_bootstrap() {
   echo "🚀 Running bootstrap.sh with profile '$PROFILE'..."
-  cd "$DOTFILES_DIR"
-  ./bootstrap.sh "$PROFILE"
+  if [ ! -x "$DOTFILES_DIR/bootstrap.sh" ]; then
+    echo "❌ bootstrap.sh not found or not executable at $DOTFILES_DIR"
+    exit 1
+  fi
+  "$DOTFILES_DIR/bootstrap.sh" "$PROFILE"
 }
 
 # Main
+sudo -v
+
 PKGMGR=$(detect_pkgmgr)
 install_minimum_tools "$PKGMGR"
 clone_repo
