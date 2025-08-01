@@ -25,8 +25,10 @@ alias g='git'
 alias ga='git add '
 alias gc='git commit -m'
 alias gd='git diff'
+alias gl='git log --oneline'
 alias gpl='git pull'
 alias gps='git push'
+alias gr='git remote -vv'
 alias gst='git status'
 
 # Various
