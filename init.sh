@@ -8,11 +8,11 @@
 #     - Clone your dotfiles repository into ~/.dotfiles using SSH
 #     - Run bootstrap.sh to install packages and stow config files
 #
-# BASIC USAGE (default profile: "common"):
+# BASIC USAGE (defaults to branch "main" and profile "common"):
 #   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/main/init.sh)
 #
-# CUSTOM PROFILE (e.g., dev, server):
-#   bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/main/init.sh) dev
+# CUSTOM BRANCH AND PROFILE:
+#   DOTFILES_BRANCH=dev-branch-name bash <(curl -s https://raw.githubusercontent.com/Eumaios1212/dotfiles/dev-branch-name/init.sh) dev
 #
 # REQUIREMENTS:
 #   - SSH key access to: git@github.com:Eumaios1212/dotfiles.git
@@ -29,17 +29,21 @@ set -euo pipefail
 REPO_URL="git@github.com:Eumaios1212/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 PROFILE="${1:-common}"
+BRANCH="${DOTFILES_BRANCH:-main}"
 
-# Detect package manager
+# ----- Detect package manager -----
 detect_pkgmgr() {
-  if command -v apt &>/dev/null; then echo "apt"
-  elif command -v pacman &>/dev/null; then echo "pacman"
+  if command -v apt &>/dev/null; then
+    echo "apt"
+  elif command -v pacman &>/dev/null; then
+    echo "pacman"
   else
     echo "❌ Unsupported package manager." >&2
     exit 1
   fi
 }
 
+# ----- Install git, curl, stow -----
 install_minimum_tools() {
   local mgr="$1"
   echo "🛠 Installing git, curl, and stow..."
@@ -53,15 +57,17 @@ install_minimum_tools() {
   esac
 }
 
+# ----- Clone dotfiles repo -----
 clone_repo() {
   if [ ! -d "$DOTFILES_DIR" ]; then
-    echo "📥 Cloning dotfiles into $DOTFILES_DIR..."
-    git clone "$REPO_URL" "$DOTFILES_DIR"
+    echo "📥 Cloning dotfiles into $DOTFILES_DIR (branch: $BRANCH)..."
+    git clone --branch "$BRANCH" "$REPO_URL" "$DOTFILES_DIR"
   else
     echo "📁 Dotfiles repo already exists. Skipping clone."
   fi
 }
 
+# ----- Run the bootstrap process -----
 run_bootstrap() {
   echo "🚀 Running bootstrap.sh with profile '$PROFILE'..."
   if [ ! -x "$DOTFILES_DIR/bootstrap.sh" ]; then
@@ -71,9 +77,8 @@ run_bootstrap() {
   "$DOTFILES_DIR/bootstrap.sh" "$PROFILE"
 }
 
-# Main
+# ----- MAIN -----
 sudo -v
-
 PKGMGR=$(detect_pkgmgr)
 install_minimum_tools "$PKGMGR"
 clone_repo
