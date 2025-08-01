@@ -27,6 +27,7 @@ alias gc='git commit -m'
 alias gd='git diff'
 alias gpl='git pull'
 alias gps='git push'
+alias gr='git remote -vv'
 alias gst='git status'
 
 # Various
