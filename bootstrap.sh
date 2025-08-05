@@ -78,8 +78,14 @@ bootstrap_stow() {
   cleanup_conflicts
   for dir in */; do
     [[ "$dir" == "apps/" || "$dir" == "install.d/" || ! -d "$dir" ]] && continue
-    echo "➡️  Stowing ${dir%/}"
-    stow --target="$HOME" "${dir%/}"
+
+    if [[ "$dir" == "bash-root/" ]]; then
+      echo "➡️  Stowing bash-root into /root"
+      sudo stow --target=/root bash-root
+    else
+      echo "➡️  Stowing ${dir%/}"
+      stow --target="$HOME" "${dir%/}"
+    fi
   done
 }
 
