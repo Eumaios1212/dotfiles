@@ -6,3 +6,4 @@ stow
 tmux
 tldr
 vim
+tree
