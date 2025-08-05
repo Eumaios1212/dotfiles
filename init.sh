@@ -97,8 +97,8 @@ run_bootstrap() {
 # ----- MAIN EXECUTION -----
 # Elevate privileges once up front
 sudo -v
-prompt_for_branch
 PKGMGR=$(detect_pkgmgr)
 install_minimum_tools "$PKGMGR"
+prompt_for_branch
 clone_repo
 run_bootstrap

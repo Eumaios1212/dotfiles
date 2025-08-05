@@ -85,9 +85,11 @@ ensure_stow() {
 run_profile_hooks() {
   local pattern="${HOOKS_DIR}/${PROFILE}-*.sh"
   echo "🚀 Running hooks for profile '$PROFILE'..."
-  for hook in "$pattern"; do
+  shopt -s nullglob
+  for hook in ${pattern}; do
     [[ -x "$hook" ]] && echo "➡️  Executing $hook" && "$hook"
   done
+  shopt -u nullglob
 }
 
 # Backup any dotfiles in $1 (home or /root) that would block stow from linking
