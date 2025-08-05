@@ -51,7 +51,7 @@ fi
 
 # Enable and start Docker daemon
 echo "🔧 Enabling and starting Docker..."
-sudo systemctl enable --now docker
+sudo systemctl enable --now docker || echo "⚠️ systemctl failed — check if systemd is available"
 
 # Add user to docker group
 if ! groups "$USER" | grep -qw docker; then

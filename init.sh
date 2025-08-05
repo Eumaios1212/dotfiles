@@ -14,6 +14,7 @@ set -euo pipefail
 REPO_URL="git@github.com:Eumaios1212/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 PROFILE="${1:-common}"
+BRANCH="master"
 
 # ----- Prompt for branch if not supplied via env -----
 prompt_for_branch() {
@@ -51,6 +52,14 @@ install_minimum_tools() {
   esac
 }
 
+# ----- Verify the branch exists on the remote -----
+verify_remote_branch() {
+  if ! git ls-remote --heads "$REPO_URL" "$BRANCH" | grep -q "$BRANCH"; then
+    echo "❌ Branch '$BRANCH' does not exist on remote."
+    exit 1
+  fi
+}
+
 # ----- Clone dotfiles repo -----
 clone_repo() {
   if [ ! -d "$DOTFILES_DIR" ]; then
@@ -76,5 +85,7 @@ sudo -v
 prompt_for_branch
 PKGMGR=$(detect_pkgmgr)
 install_minimum_tools "$PKGMGR"
+verify_remote_branch
 clone_repo
 run_bootstrap
+
