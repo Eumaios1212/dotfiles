@@ -1,4 +1,4 @@
-k#!/usr/bin/env bash
+#!/usr/bin/env bash
 # -----------------------------------------------------------------------------
 # bootstrap.sh - Dotfiles installer and stow-based manager
 #
