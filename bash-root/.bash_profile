@@ -1,4 +1,6 @@
-# ~/.bash_profile for root – defer to the shared Bash config
+# ~/.bash_profile for root – minimal login shell config
+
+# Source .bashrc if present
 if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi

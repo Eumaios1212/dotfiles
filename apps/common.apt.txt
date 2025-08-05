@@ -1,0 +1,8 @@
+build-essential
+curl
+git
+htop
+stow
+tmux
+tldr
+vim
