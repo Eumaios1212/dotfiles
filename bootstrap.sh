@@ -35,7 +35,7 @@ PKG_LIST_PACMAN="$APPS_DIR/${PROFILE}.pacman.txt"
 
 # ===== FUNCTIONS =====
 
-# Detect which package manager is available (apt or pacman)
+# Detects available package manager (apt or pacman)
 detect_package_manager() {
   if command -v apt &>/dev/null; then
     echo "apt"
@@ -47,7 +47,7 @@ detect_package_manager() {
   fi
 }
 
-# Install apps listed in the profile's .apt.txt or .pacman.txt file
+# Installs apps listed in the appropriate profile file
 install_apps() {
   local manager="$1"
   local file="$APPS_DIR/${PROFILE}.${manager}.txt"
@@ -70,7 +70,7 @@ install_apps() {
   esac
 }
 
-# Ensure GNU Stow is installed
+# Ensures GNU Stow is installed if missing
 ensure_stow() {
   if ! command -v stow &>/dev/null; then
     echo "🧰 Installing GNU Stow..."
@@ -81,7 +81,7 @@ ensure_stow() {
   fi
 }
 
-# Run all executable install hooks matching the profile, e.g., install.d/common-*.sh
+# Executes any hook scripts matching the profile
 run_profile_hooks() {
   local pattern="${HOOKS_DIR}/${PROFILE}-*.sh"
   echo "🚀 Running hooks for profile '$PROFILE'..."
@@ -89,38 +89,44 @@ run_profile_hooks() {
   for hook in ${pattern}; do
     [[ -x "$hook" ]] && echo "➡️  Executing $hook" && "$hook"
   done
-  shopt -u nullglob
 }
 
-# Backup any dotfiles in $1 (home or /root) that would block stow from linking
+# Backs up conflicting dotfiles that would block stow
 cleanup_conflicts() {
   local target_dir="$1"
   echo "🧹 Checking for conflicting dotfiles in $target_dir..."
-
-  find . -type l -prune -o -type f -print | while read -r file; do
-    file_name=$(basename "$file")
-    dest="$target_dir/$file_name"
-
-    if [[ -e "$dest" && ! -L "$dest" ]]; then
-      echo "⚠️  Backing up $dest → $dest.backup"
-      sudo mv "$dest" "$dest.backup"
+  for file in .bashrc .bash_logout .bash_profile .bash_aliases .bash_functions .profile; do
+    target="$target_dir/$file"
+    if [ -f "$target" ] && [ ! -L "$target" ]; then
+      echo "⚠️  Backing up $target → $target.backup"
+      mv "$target" "$target.backup"
     fi
   done
 }
 
-# Stow each top-level folder (excluding ignored ones) into $HOME or /root
+# Performs full stow process for all dotfiles
 bootstrap_stow() {
   echo "🔗 Stowing dotfiles..."
+
+  cleanup_conflicts "$HOME"
 
   for dir in */; do
     [[ "$dir" == "apps/" || "$dir" == "install.d/" || ! -d "$dir" ]] && continue
 
     if [[ "$dir" == "bash-root/" ]]; then
-      cleanup_conflicts "/root"
+      echo "🧹 Checking for conflicting dotfiles in /root..."
+      sudo bash -c '
+        for file in .bashrc .bash_logout .bash_profile .bash_aliases .bash_functions .profile; do
+          target="/root/$file"
+          if [ -f "$target" ] && [ ! -L "$target" ]; then
+            echo "⚠️  Backing up $target → $target.backup"
+            mv "$target" "$target.backup"
+          fi
+        done
+      '
       echo "➡️  Stowing bash-root into /root"
       sudo stow --target=/root bash-root
     else
-      cleanup_conflicts "$HOME"
       echo "➡️  Stowing ${dir%/}"
       stow --target="$HOME" "${dir%/}"
     fi
@@ -138,4 +144,3 @@ run_profile_hooks
 bootstrap_stow
 
 echo "✅ Bootstrap complete for profile: $PROFILE ($PKG_MANAGER)"
-
