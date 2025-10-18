@@ -89,6 +89,7 @@ run_profile_hooks() {
   for hook in ${pattern}; do
     [[ -x "$hook" ]] && echo "➡️  Executing $hook" && "$hook"
   done
+  shopt -u nullglob
 }
 
 # Backs up conflicting dotfiles that would block stow
