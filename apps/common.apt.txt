@@ -7,3 +7,4 @@ tmux
 tldr
 vim
 tree
+kitty
