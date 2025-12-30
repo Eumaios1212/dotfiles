@@ -38,7 +38,7 @@ TERM = "xterm-256color"
 [window]
 
 # Window dimensions
-dimensions = { columns = 0, lines = 0 }  # Default: columns = 0, lines = 0
+dimensions = { columns = 120, lines = 30 }  # Default: columns = 0, lines = 0
 
 # Window startup position
 position = "None"  # Default: "None"
@@ -110,7 +110,7 @@ italic = { style = "Italic" }  # Inherits family from normal, Default style: Ita
 bold_italic = { style = "Bold Italic" }  # Inherits family from normal, Default style: Bold Italic
 
 # Font size in points
-size = 13.0  # Default: 13.0
+size = 18.0  # Default: 13.0
 
 # Offset is extra space around each character
 offset = { x = 0, y = 0 }  # Default: x = 0, y = 0
