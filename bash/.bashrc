@@ -21,6 +21,7 @@ esac
 ###############################################################################
 export EDITOR="nano"
 export VISUAL="nano"
+export TERM=xterm-256color
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # Add ~/bin to PATH
@@ -132,7 +133,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 # ─── Conda initialise ─────────────────────────────────────────────────────────
 if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
-    source "$HOME/anaconda3/etc/profile.d/conda.sh"
+# source "$HOME/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
     __conda_setup="$("$HOME/anaconda3/bin/conda" shell.bash hook 2>/dev/null)"
     eval "$__conda_setup"
     unset __conda_setup
@@ -152,3 +153,38 @@ export PATH="$HOME/.local/bin:$PATH"
 # 14. Attach ble.sh after all other configurations, including Starship.
 ###############################################################################
 [[ ! ${BLE_VERSION-} ]] || ble-attach
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# Robust version: prefers Miniconda3 if present, otherwise falls back to Anaconda
+
+if [ -x "$HOME/miniconda3/bin/conda" ]; then
+    # Miniconda3 installation
+    __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        . "$HOME/miniconda3/etc/profile.d/conda.sh" 2>/dev/null || true
+    fi
+elif [ -x "$HOME/anaconda3/bin/conda" ]; then
+    # Anaconda installation
+    __conda_setup="$('$HOME/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        . "$HOME/anaconda3/etc/profile.d/conda.sh" 2>/dev/null || true
+    fi
+else
+    # No Conda installation detected; add potential paths as fallback
+    export PATH="$HOME/miniconda3/bin:$HOME/anaconda3/bin:$PATH"
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+# pnpm
+export PNPM_HOME="/home/eumaios/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
