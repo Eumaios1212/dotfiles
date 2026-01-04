@@ -48,6 +48,21 @@ shopt -s histappend				# append rather than overwrite
 export PROMPT_COMMAND='history -a; history -n'
 
 ###############################################################################
+# 4b. Terminal title (for kitty tabs)
+###############################################################################
+# Prevent Claude Code from overwriting the terminal title at startup
+export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+
+# Set terminal/tab title to this server's IP address via OSC 0 escape sequence
+__set_terminal_title() {
+    local ip
+    ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    [[ -n "$ip" ]] && printf '\033]0;%s\007' "$ip"
+}
+[[ "$PROMPT_COMMAND" != *__set_terminal_title* ]] && \
+    PROMPT_COMMAND="__set_terminal_title${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+
+###############################################################################
 # 5. Shell options
 ###############################################################################
 shopt -s cdspell       # fix minor cd typos
@@ -147,7 +162,6 @@ if command -v starship &>/dev/null; then
     eval "$(starship init bash)"
 fi
 #eval "$(starship init bash)"      # ← NOTHING must come after this
-export PATH="$HOME/.local/bin:$PATH"
 
 ###############################################################################
 # 14. Attach ble.sh after all other configurations, including Starship.
