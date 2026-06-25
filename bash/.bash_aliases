@@ -74,3 +74,8 @@ alias tmuxhelp='printf "%s\n" \
 "C-a :......................Enter command mode (e.g., :source-file ~/.tmux.conf)" \
 "" \
 "Note: C-a represents your custom tmux prefix (Ctrl-a)." | less'
+
+alias addkey='ssh-add -t 14400 ~/.ssh/eumaios'
+	#    Load my GitHub/SSH key (~/.ssh/eumaios) into the ssh-agent for 4 hours.
+	#    Prompts once for the passphrase; auto-expires after 14400s (-t 14400).
+	#    Used for every host in ~/.ssh/config.
