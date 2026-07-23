@@ -42,7 +42,7 @@ export NVM_DIR="$HOME/.nvm"
 ###############################################################################
 # 4. History configuration
 ###############################################################################
-export HISTCONTROL=ignorespace:erasedups	# no dupes; ignore leading‑space
+export HISTCONTROL=ignorespace:ignoredups	# ignore leading‑space + consecutive dupes
 HISTSIZE=1000
 HISTFILESIZE=2000
 HISTTIMEFORMAT="%Y-%m-%d %T "			# timestamps in history
