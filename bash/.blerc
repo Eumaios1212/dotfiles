@@ -35,3 +35,7 @@ bleopt editor=nano				# Ensure nano is always used for ble.sh’s editor feature
 
 #ble-bind -m default/vi-insert			# Default to Vi insert mode (uncomment if wanted)
 
+
+# ─── Machine-local overrides (untracked; sourced if present) ──────────────────
+[ -f ~/.blerc.local ] && source ~/.blerc.local
+
