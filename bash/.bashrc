@@ -21,7 +21,9 @@ esac
 ###############################################################################
 export EDITOR="nano"
 export VISUAL="nano"
-export TERM=xterm-256color
+# Let each terminal set its own TERM (kitty=xterm-kitty, gnome=xterm-256color)
+# Only force 256color as fallback for terminals that don't set it properly
+[[ -z "$TERM" || "$TERM" == "dumb" ]] && export TERM=xterm-256color
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # Add ~/bin to PATH
