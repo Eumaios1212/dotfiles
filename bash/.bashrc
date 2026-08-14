@@ -206,3 +206,12 @@ esac
 # pnpm end
 export GPG_TTY=$(tty)
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Go toolchain (installed at /usr/local/go; the standard post-install PATH line was never
+# added). Guarded so machines without a Go install are unaffected.
+if [ -d /usr/local/go/bin ]; then
+  case ":$PATH:" in
+    *":/usr/local/go/bin:"*) ;;
+    *) export PATH="$PATH:/usr/local/go/bin" ;;
+  esac
+fi
