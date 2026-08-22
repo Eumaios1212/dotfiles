@@ -143,6 +143,9 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 #  fi
 #fi
 
+# Never offer these directories in filename completion (suffix match)
+FIGNORE='.Trash-1000:.pnpm-store'
+
 ###############################################################################
 # 12. Host‑Specific Overrides
 ###############################################################################
