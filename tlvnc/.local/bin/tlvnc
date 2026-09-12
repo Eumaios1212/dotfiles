@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# tlvnc — connect TigerVNC's viewer directly to an existing ThinLinc session.
+#
+# Why: ThinLinc's own client is FLTK 1.3 and cannot scale, so on 550's 4K primary
+# its login window is unreadably small (26.04 made Xwayland native scaling
+# mandatory). A ThinLinc session is just an Xvnc bound to the hub's loopback, so
+# we reach it over SSH and use a viewer that does scale. See
+# ~/.claude/projects/550-3880-rdp-thinlinc-replacement-test.md
+#
+# Usage: tlvnc <host> [-- <extra vncviewer args>]
+#   e.g. tlvnc 8056
+#        tlvnc 3880 -- -FullScreen
+#
+# The session's VNC password is generated per session and never typed by a human;
+# ThinLinc's broker fetches it for you. We do the same: copy it (already in the
+# viewer's native format) into a private file under /run/user, and pass it as a
+# file — never on the command line, which is world-readable via the process list.
+
+set -euo pipefail
+
+# Hosts offered by the picker. Override with ~/.config/tlvnc/hosts, one per line.
+HOSTSFILE="${XDG_CONFIG_HOME:-$HOME/.config}/tlvnc/hosts"
+if [ -r "$HOSTSFILE" ]; then
+    mapfile -t HOSTS < <(grep -vE '^\s*(#|$)' "$HOSTSFILE")
+else
+    HOSTS=(8056 3880)
+fi
+
+HOST=${1:-}
+if [ -n "$HOST" ]; then
+    shift
+elif command -v zenity >/dev/null; then
+    # No host given (a dash click): ask.
+    # Buttons, not a list: zenity ignores --height for lists, so the rows opened
+    # clipped and had to be resized before they could be read.
+    BTNS=()
+    for h in "${HOSTS[@]}"; do BTNS+=(--extra-button "$h"); done
+    HOST=$(zenity --info --title="Remote Desktop" --text="Attach to which host?" \
+                  --ok-label="Cancel" "${BTNS[@]}" --width=300 || true)
+    [ -n "$HOST" ] || exit 0   # Cancel, or the window was closed
+else
+    echo "usage: tlvnc <host> [-- <vncviewer args>]" >&2
+    exit 2
+fi
+[ "${1:-}" = "--" ] && shift
+
+REMOTE_USER=${TLVNC_USER:-eumaios}
+SESSROOT="/var/opt/thinlinc/sessions/$REMOTE_USER"
+
+# Launched from the dash there is no terminal to read, so errors also get a dialog.
+die() {
+    echo "tlvnc: $1" >&2
+    if [ -z "${TERM:-}" ] || [ ! -t 2 ]; then
+        command -v zenity >/dev/null && zenity --error --title="tlvnc" --text="$1" --width=420 || true
+    fi
+    exit 1
+}
+
+if ! command -v vncviewer >/dev/null; then
+    echo "tlvnc: vncviewer not found (apt install tigervnc-viewer)" >&2
+    exit 1
+fi
+
+# One SSH connection carries everything below — the lookup, the password copy and
+# the tunnel — so the key is used once.
+RUNDIR=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/tlvnc.XXXXXX")
+chmod 700 "$RUNDIR"
+CTL="$RUNDIR/ctl"
+cleanup() {
+    if [ -S "$CTL" ]; then ssh -S "$CTL" -O exit "$HOST" 2>&- || true; fi
+    rm -rf "$RUNDIR"
+}
+trap cleanup EXIT INT TERM
+
+ssh -M -S "$CTL" -f -N "$HOST"
+
+# Which display is live? ThinLinc keeps a 'last' symlink per user; trust it only
+# if an Xvnc is actually running for that display.
+DISPLAYNUM=$(ssh -S "$CTL" "$HOST" "readlink '$SESSROOT/last' || true")
+# 'last' survives the session it pointed at: once a session ends its directory is
+# renamed to <display>.<epoch>.ended and the symlink follows. Only a bare number
+# is a live session.
+case "$DISPLAYNUM" in
+    ''|*[!0-9]*) DISPLAYNUM= ;;
+esac
+if [ -z "$DISPLAYNUM" ]; then
+    # No session (typically the host rebooted). Only ThinLinc's broker can create
+    # one, and only its own client talks to the broker — so hand over to it. The
+    # client both creates the session and attaches you to it, so we are done here;
+    # next time round the session exists and tlvnc attaches with TigerVNC instead.
+    CFG="/mnt/md0/thinlinc/$HOST.tlclient"
+    echo "tlvnc: no session on $HOST — starting one with the ThinLinc client." >&2
+    cleanup
+    trap - EXIT INT TERM
+    if [ -r "$CFG" ]; then
+        exec /opt/thinlinc/bin/tlclient -C "$CFG"
+    else
+        exec /opt/thinlinc/bin/tlclient "$HOST"
+    fi
+fi
+# -c, not -q: Debian 12's pgrep predates -q.
+LIVE=$(ssh -S "$CTL" "$HOST" "pgrep -cf 'Xvnc :$DISPLAYNUM '" || true)
+if [ "${LIVE:-0}" -lt 1 ]; then
+    die "Session :$DISPLAYNUM is recorded on $HOST but its Xvnc is not running."
+fi
+
+REMOTE_PORT=$((5900 + DISPLAYNUM))
+
+# Already being viewed? A second viewer makes Xvnc raise its -QueryConnect
+# approval prompt *inside* the session, which nobody can answer from out here.
+ATTACHED=$(ssh -S "$CTL" "$HOST" "ss -tn state established sport = :$REMOTE_PORT | tail -n +2 | wc -l" || echo 0)
+if [ "${ATTACHED:-0}" -gt 0 ]; then
+    die "$HOST's desktop is already open in another viewer.
+
+Close that one first, or keep using it."
+fi
+
+# Copy the per-session password file (16 bytes, already in the viewer's format).
+PASSFILE="$RUNDIR/passwd"
+( umask 077; ssh -S "$CTL" "$HOST" "cat '$SESSROOT/$DISPLAYNUM/vncpasswd'" > "$PASSFILE" )
+if [ ! -s "$PASSFILE" ]; then
+    die "Could not read the session password on $HOST."
+fi
+
+# A free local port, asked of the kernel rather than guessed.
+LOCAL_PORT=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')
+
+ssh -S "$CTL" -O forward -L "$LOCAL_PORT:localhost:$REMOTE_PORT" "$HOST"
+
+echo "tlvnc: $HOST session :$DISPLAYNUM -> 127.0.0.1:$LOCAL_PORT"
+exec vncviewer -passwd "$PASSFILE" "$@" "127.0.0.1::$LOCAL_PORT"

@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=Remote Desktop
+Comment=Attach to a ThinLinc session (TigerVNC over SSH)
+Exec=/home/eumaios/.local/bin/tlvnc
+Icon=tigervnc
+Terminal=false
+Categories=Network;RemoteAccess;
+Keywords=vnc;thinlinc;remote;desktop;tlvnc;
+Actions=host8056;host3880;
+
+[Desktop Action host8056]
+Name=8056
+Exec=/home/eumaios/.local/bin/tlvnc 8056
+
+[Desktop Action host3880]
+Name=3880
+Exec=/home/eumaios/.local/bin/tlvnc 3880
