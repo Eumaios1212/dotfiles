@@ -128,4 +128,9 @@ LOCAL_PORT=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0
 ssh -S "$CTL" -O forward -L "$LOCAL_PORT:localhost:$REMOTE_PORT" "$HOST"
 
 echo "tlvnc: $HOST session :$DISPLAYNUM -> 127.0.0.1:$LOCAL_PORT"
-exec vncviewer -passwd "$PASSFILE" "$@" "127.0.0.1::$LOCAL_PORT"
+# Deliberately not exec: exec would replace this shell and the EXIT trap would
+# never run, leaving an idle SSH master and the password file behind after every
+# connect.
+RC=0
+vncviewer -passwd "$PASSFILE" "$@" "127.0.0.1::$LOCAL_PORT" || RC=$?
+exit "$RC"
