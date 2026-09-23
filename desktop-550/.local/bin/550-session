@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Recreate the 550 desktop terminal layout; remote connections wait for Enter.
+set -euo pipefail
+
+detached=false
+case "${1:-}" in
+    '') ;;
+    --detached) detached=true; shift ;;
+    -h|--help)
+        printf 'Usage: 550-session [--detached]\nCreate or attach to the 550 workspace. Remote SSH commands wait for Enter.\n'
+        exit 0 ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
+esac
+if (( $# )); then
+    printf 'Usage: 550-session [--detached]\n' >&2
+    exit 2
+fi
+if [[ $(hostname -s) != 550 ]]; then
+    printf 'This workspace launcher is for host 550 only.\n' >&2
+    exit 1
+fi
+command -v tmux >/dev/null || { printf 'tmux is required.\n' >&2; exit 1; }
+
+session=550
+repo_root=/mnt/md0/repos/homeric-freedom
+usage_repo=/mnt/md0/repos/eumaios1212/ai-usage-indicator
+
+attach() {
+    if $detached; then
+        printf 'Session %s is ready. Attach with: tmux attach -t =%s\n' "$session" "$session"
+    elif [[ -n ${TMUX:-} ]]; then
+        exec tmux switch-client -t "=$session"
+    else
+        exec tmux attach-session -t "=$session"
+    fi
+}
+
+if tmux has-session -t "=$session" 2>/dev/null; then
+    attach
+    exit 0
+fi
+
+# Check everything before creating windows, so a missing installation is clear.
+for directory in "$repo_root" "$repo_root/ceilo" "$usage_repo"; do
+    [[ -d $directory ]] || { printf 'Missing directory: %s\n' "$directory" >&2; exit 1; }
+done
+for program in claude codex ssh; do
+    command -v "$program" >/dev/null || { printf 'Missing command: %s\n' "$program" >&2; exit 1; }
+done
+if ! $detached && [[ -z ${TMUX:-} ]] && [[ ! -t 0 ]]; then
+    printf 'Run from a terminal, or use --detached.\n' >&2
+    exit 1
+fi
+
+# Use IDs for all targets: display names can contain spaces and tmux's colon.
+ids=$(tmux new-session -d -s "$session" -n 'Agent VM' -c "$HOME" -P -F '#{session_id} #{window_id} #{pane_id}')
+read -r session_id window pane <<< "$ids"
+first_window=$window
+tmux set-option -t "$session_id" destroy-unattached off
+tmux set-option -w -t "$window" automatic-rename off
+tmux set-option -w -t "$window" allow-rename off
+tmux send-keys -t "$pane" -l -- 'ssh -t ceilo tmux attach'
+
+new_window() {
+    local title=$1 directory=$2 command=$3 run=$4 ids window pane
+    ids=$(tmux new-window -d -t "$session_id:" -n "$title" -c "$directory" -P -F '#{window_id} #{pane_id}')
+    read -r window pane <<< "$ids"
+    tmux set-option -w -t "$window" automatic-rename off
+    tmux set-option -w -t "$window" allow-rename off
+    if [[ -n $command ]]; then
+        tmux send-keys -t "$pane" -l -- "$command"
+        if [[ $run == yes ]]; then
+            tmux send-keys -t "$pane" Enter
+        fi
+    fi
+}
+
+new_window 'hbot' "$HOME" 'ssh -t hbot tmux attach -t ceilo' no
+new_window 'AI Usage' "$usage_repo" 'claude' yes
+new_window 'Codex' "$repo_root" 'codex' yes
+new_window 'Claude' "$repo_root" 'claude' yes
+new_window 'Pr-Rev: ceilo' "$repo_root/ceilo" 'claude' yes
+new_window 'Shell' "$HOME" '' no
+
+tmux select-window -t "$first_window"
+attach

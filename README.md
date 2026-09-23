@@ -106,6 +106,37 @@ stow -D bash
 
 ---
 
+## 550 Desktop Workspace
+
+`desktop-550/.local/bin/550-session` provides the host-550-only tmux workspace.
+Install just this package with `stow --dir="$HOME/.dotfiles" --target="$HOME" desktop-550`,
+then run `550-session` in Kitty. It creates session `550` or attaches to the existing
+session; from inside tmux it switches the client. `550-session --detached` creates
+it without attaching. Other hosts refuse to launch this layout.
+
+| Window | Directory | Startup |
+|---|---|---|
+| Agent VM | Home | `ssh -t ceilo tmux attach`, pre-typed; press Enter |
+| hbot | Home | `ssh -t hbot tmux attach -t ceilo`, pre-typed; press Enter |
+| AI Usage | `/mnt/md0/repos/eumaios1212/ai-usage-indicator` | Claude |
+| Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
+| Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
+| Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
+| Shell | Home | Plain terminal |
+
+The remote windows only attach to sessions already running on those hosts. If the
+Agent VM has several sessions, append `-t SESSION_NAME` to its pre-typed command.
+Window names are pinned against automatic/application renaming. To adjust the
+layout, edit the launcher's window declarations; an existing session is left intact.
+
+Local agent windows start fresh conversations; use the agent's own resume command
+when needed. Detach with Ctrl+A, then D. Closing Kitty leaves local tmux running;
+rebooting 550 requires recreating the layout and resuming conversations separately.
+The shared tmux prefix also applies remotely: Ctrl+A, Ctrl+A sends a prefix to the
+inner session. No existing Kitty terminals are moved or closed by the launcher.
+
+---
+
 ## Maintainer
 
 Created by [@Eumaios1212](https://github.com/Eumaios1212)
