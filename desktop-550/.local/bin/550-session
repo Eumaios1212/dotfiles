@@ -62,6 +62,7 @@ remote_tab() {
 if [[ -n ${KITTY_WINDOW_ID:-} && -z ${TMUX:-} ]]; then
     remote_tab 'Agent VM' ssh -t ceilo tmux attach
     remote_tab 'hbot' ssh -t hbot tmux attach -t ceilo
+    kitty @ launch --type=tab --tab-title '550 Terminal' --keep-focus --cwd "$HOME" >/dev/null
     kitty @ set-tab-title 'Agent-Issue'
 else
     printf 'Not run directly in kitty; skipping the Agent VM and hbot tabs.\n' >&2

@@ -118,6 +118,7 @@ it without attaching. Other hosts refuse to launch this layout.
 |---|---|---|
 | Agent VM | Home | `ssh -t ceilo tmux attach`, pre-typed; press Enter |
 | hbot | Home | `ssh -t hbot tmux attach -t ceilo`, pre-typed; press Enter |
+| 550 Terminal | Home | Plain kitty terminal, outside tmux |
 | Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl` |
 | Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
 | Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
