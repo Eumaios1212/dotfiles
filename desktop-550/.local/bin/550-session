@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Recreate the 550 desktop terminal layout; remote connections wait for Enter.
+# Recreate the 550 desktop terminal layout. Remote tmux sessions get their own
+# kitty tabs (not nested tmux, so their key bindings work); they wait for Enter.
 set -euo pipefail
 
 detached=false
@@ -7,7 +8,7 @@ case "${1:-}" in
     '') ;;
     --detached) detached=true; shift ;;
     -h|--help)
-        printf 'Usage: 550-session [--detached]\nCreate or attach to the 550 workspace. Remote SSH commands wait for Enter.\n'
+        printf 'Usage: 550-session [--detached]\nCreate or attach to the 550 workspace. Remote SSH sessions open in their own kitty tabs and wait for Enter.\n'
         exit 0 ;;
     *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
 esac
@@ -43,7 +44,7 @@ fi
 for directory in "$repo_root" "$repo_root/ceilo"; do
     [[ -d $directory ]] || { printf 'Missing directory: %s\n' "$directory" >&2; exit 1; }
 done
-for program in claude codex ssh; do
+for program in claude codex ssh kitty; do
     command -v "$program" >/dev/null || { printf 'Missing command: %s\n' "$program" >&2; exit 1; }
 done
 if ! $detached && [[ -z ${TMUX:-} ]] && [[ ! -t 0 ]]; then
@@ -51,19 +52,24 @@ if ! $detached && [[ -z ${TMUX:-} ]] && [[ ! -t 0 ]]; then
     exit 1
 fi
 
-# Use IDs for all targets: display names can contain spaces and tmux's colon.
-ids=$(tmux new-session -d -s "$session" -n 'Agent VM' -c "$HOME" -P -F '#{session_id} #{window_id} #{pane_id}')
-read -r session_id window pane <<< "$ids"
-first_window=$window
-tmux set-option -t "$session_id" destroy-unattached off
-tmux set-option -w -t "$window" automatic-rename off
-tmux set-option -w -t "$window" allow-rename off
-tmux send-keys -t "$pane" -l -- 'ssh -t ceilo tmux attach'
+# Nested tmux would swallow the remote sessions' keys, so each gets its own tab
+# in the kitty window running this script. Enter (re)connects; Ctrl-D closes it.
+remote_tab() {
+    local title=$1; shift
+    kitty @ launch --type=tab --tab-title "$title" --keep-focus bash -c \
+        'while printf "Press Enter to run: %s\n" "$*"; read -r; do "$@"; done' "$title" "$@" >/dev/null
+}
+if [[ -n ${KITTY_WINDOW_ID:-} && -z ${TMUX:-} ]]; then
+    remote_tab 'Agent VM' ssh -t ceilo tmux attach
+    remote_tab 'hbot' ssh -t hbot tmux attach -t ceilo
+    kitty @ set-tab-title 'Agent-Issue'
+else
+    printf 'Not run directly in kitty; skipping the Agent VM and hbot tabs.\n' >&2
+fi
 
-new_window() {
-    local title=$1 directory=$2 command=$3 run=$4 ids window pane
-    ids=$(tmux new-window -d -t "$session_id:" -n "$title" -c "$directory" -P -F '#{window_id} #{pane_id}')
-    read -r window pane <<< "$ids"
+# Use IDs for all targets: display names can contain spaces and tmux's colon.
+setup_window() {
+    local window=$1 pane=$2 command=$3 run=$4
     tmux set-option -w -t "$window" automatic-rename off
     tmux set-option -w -t "$window" allow-rename off
     if [[ -n $command ]]; then
@@ -74,8 +80,18 @@ new_window() {
     fi
 }
 
-new_window 'hbot' "$HOME" 'ssh -t hbot tmux attach -t ceilo' no
-new_window 'Agent-Issue' "$HOME" "claude 'continue 550-ceilo-agent-vm-impl'" yes
+new_window() {
+    local title=$1 directory=$2 command=$3 run=$4 ids window pane
+    ids=$(tmux new-window -d -t "$session_id:" -n "$title" -c "$directory" -P -F '#{window_id} #{pane_id}')
+    read -r window pane <<< "$ids"
+    setup_window "$window" "$pane" "$command" "$run"
+}
+
+ids=$(tmux new-session -d -s "$session" -n 'Agent-Issue' -c "$HOME" -P -F '#{session_id} #{window_id} #{pane_id}')
+read -r session_id first_window pane <<< "$ids"
+tmux set-option -t "$session_id" destroy-unattached off
+setup_window "$first_window" "$pane" "claude 'continue 550-ceilo-agent-vm-impl'" yes
+
 new_window 'Codex' "$repo_root" 'codex' yes
 new_window 'Claude' "$repo_root" 'claude' yes
 new_window 'Pr-Rev: ceilo' "$repo_root/ceilo" 'claude' yes
