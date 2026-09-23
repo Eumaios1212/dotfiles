@@ -118,14 +118,14 @@ it without attaching. Other hosts refuse to launch this layout.
 |---|---|---|
 | Agent VM | Home | `ssh -t ceilo tmux attach`, pre-typed; press Enter |
 | hbot | Home | `ssh -t hbot tmux attach -t ceilo`, pre-typed; press Enter |
-| 550 Terminal | Home | Plain kitty terminal, outside tmux |
 | Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl` |
 | Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
 | Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
 | Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
-| Shell | Home | Plain terminal |
+| 550 Shell | Home | Plain terminal |
 
-The remote windows only attach to sessions already running on those hosts. If the
+The kitty tab running the local tmux session is titled 550 Main. The remote windows
+only attach to sessions already running on those hosts. If the
 Agent VM has several sessions, append `-t SESSION_NAME` to its pre-typed command.
 Window names are pinned against automatic/application renaming. To adjust the
 layout, edit the launcher's window declarations; an existing session is left intact.
