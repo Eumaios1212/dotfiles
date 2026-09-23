@@ -23,7 +23,6 @@ command -v tmux >/dev/null || { printf 'tmux is required.\n' >&2; exit 1; }
 
 session=550
 repo_root=/mnt/md0/repos/homeric-freedom
-usage_repo=/mnt/md0/repos/eumaios1212/ai-usage-indicator
 
 attach() {
     if $detached; then
@@ -41,7 +40,7 @@ if tmux has-session -t "=$session" 2>/dev/null; then
 fi
 
 # Check everything before creating windows, so a missing installation is clear.
-for directory in "$repo_root" "$repo_root/ceilo" "$usage_repo"; do
+for directory in "$repo_root" "$repo_root/ceilo"; do
     [[ -d $directory ]] || { printf 'Missing directory: %s\n' "$directory" >&2; exit 1; }
 done
 for program in claude codex ssh; do
@@ -76,7 +75,7 @@ new_window() {
 }
 
 new_window 'hbot' "$HOME" 'ssh -t hbot tmux attach -t ceilo' no
-new_window 'AI Usage' "$usage_repo" 'claude' yes
+new_window 'Agent-Issue' "$HOME" "claude 'continue 550-ceilo-agent-vm-impl'" yes
 new_window 'Codex' "$repo_root" 'codex' yes
 new_window 'Claude' "$repo_root" 'claude' yes
 new_window 'Pr-Rev: ceilo' "$repo_root/ceilo" 'claude' yes

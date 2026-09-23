@@ -118,7 +118,7 @@ it without attaching. Other hosts refuse to launch this layout.
 |---|---|---|
 | Agent VM | Home | `ssh -t ceilo tmux attach`, pre-typed; press Enter |
 | hbot | Home | `ssh -t hbot tmux attach -t ceilo`, pre-typed; press Enter |
-| AI Usage | `/mnt/md0/repos/eumaios1212/ai-usage-indicator` | Claude |
+| Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl` |
 | Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
 | Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
 | Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
@@ -129,8 +129,8 @@ Agent VM has several sessions, append `-t SESSION_NAME` to its pre-typed command
 Window names are pinned against automatic/application renaming. To adjust the
 layout, edit the launcher's window declarations; an existing session is left intact.
 
-Local agent windows start fresh conversations; use the agent's own resume command
-when needed. Detach with Ctrl+A, then D. Closing Kitty leaves local tmux running;
+Agent-Issue resumes the agent-VM project doc; the other agent windows start fresh
+conversations (use the agent's own resume command when needed). Detach with Ctrl+A, then D. Closing Kitty leaves local tmux running;
 rebooting 550 requires recreating the layout and resuming conversations separately.
 The shared tmux prefix also applies remotely: Ctrl+A, Ctrl+A sends a prefix to the
 inner session. No existing Kitty terminals are moved or closed by the launcher.
