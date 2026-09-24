@@ -116,17 +116,19 @@ it without attaching. Other hosts refuse to launch this layout.
 
 | Window | Directory | Startup |
 |---|---|---|
-| Agent VM | Home | `ssh -t ceilo tmux attach`, pre-typed; press Enter |
-| hbot | Home | `ssh -t hbot tmux attach -t ceilo`, pre-typed; press Enter |
-| Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl` |
+| hbot (kitty tab) | Home | `ssh -t hbot tmux attach -t ceilo`; press Enter |
+| Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl`; right pane: newest agent run on `ceilo`, press Enter |
 | Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
 | Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
 | Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
 | 550 Shell | Home | Plain terminal |
 
-The kitty tab running the local tmux session is titled 550 Main. The remote windows
-only attach to sessions already running on those hosts. If the
-Agent VM has several sessions, append `-t SESSION_NAME` to its pre-typed command.
+The kitty tab running the local tmux session is titled 550 Main. hbot keeps its own
+kitty tab so its key bindings work; the Agent VM session is only watched, so it sits
+in a pane beside Agent-Issue. The remote views only attach to sessions already
+running on those hosts; Enter reconnects and Ctrl-D closes the view. The Agent VM
+pane attaches to the newest `run-` or `rebase-` session, so during a batch it shows the
+current issue; when that run ends, press Enter to follow the next one.
 Window names are pinned against automatic/application renaming. To adjust the
 layout, edit the launcher's window declarations; an existing session is left intact.
 

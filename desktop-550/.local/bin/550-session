@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Recreate the 550 desktop terminal layout. Remote tmux sessions get their own
-# kitty tabs (not nested tmux, so their key bindings work); they wait for Enter.
+# Recreate the 550 desktop terminal layout. The watch-only Agent VM session is a
+# pane beside Agent-Issue; hbot gets its own kitty tab (not nested tmux, so its
+# key bindings work). Both remote views wait for Enter.
 set -euo pipefail
 
 detached=false
@@ -8,7 +9,7 @@ case "${1:-}" in
     '') ;;
     --detached) detached=true; shift ;;
     -h|--help)
-        printf 'Usage: 550-session [--detached]\nCreate or attach to the 550 workspace. Remote SSH sessions open in their own kitty tabs and wait for Enter.\n'
+        printf 'Usage: 550-session [--detached]\nCreate or attach to the 550 workspace. The Agent VM pane and hbot kitty tab wait for Enter.\n'
         exit 0 ;;
     *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
 esac
@@ -52,19 +53,21 @@ if ! $detached && [[ -z ${TMUX:-} ]] && [[ ! -t 0 ]]; then
     exit 1
 fi
 
-# Nested tmux would swallow the remote sessions' keys, so each gets its own tab
-# in the kitty window running this script. Enter (re)connects; Ctrl-D closes it.
+# Remote views wait for Enter; Enter (re)connects and Ctrl-D closes the view.
+# shellcheck disable=SC2016 # expands in the view's own shell
+wait_loop='while printf "Press Enter to connect: %s\n" "$0"; read -r; do "$@"; done'
+
+# Nested tmux would swallow hbot's keys, so it gets its own tab in the kitty
+# window running this script.
 remote_tab() {
     local title=$1; shift
-    kitty @ launch --type=tab --tab-title "$title" --keep-focus bash -c \
-        'while printf "Press Enter to run: %s\n" "$*"; read -r; do "$@"; done' "$title" "$@" >/dev/null
+    kitty @ launch --type=tab --tab-title "$title" --keep-focus bash -c "$wait_loop" "$title" "$@" >/dev/null
 }
 if [[ -n ${KITTY_WINDOW_ID:-} && -z ${TMUX:-} ]]; then
-    remote_tab 'Agent VM' ssh -t ceilo tmux attach
     remote_tab 'hbot' ssh -t hbot tmux attach -t ceilo
     kitty @ set-tab-title '550 Main'
 else
-    printf 'Not run directly in kitty; skipping the Agent VM and hbot tabs.\n' >&2
+    printf 'Not run directly in kitty; skipping the hbot tab.\n' >&2
 fi
 
 # Use IDs for all targets: display names can contain spaces and tmux's colon.
@@ -91,6 +94,11 @@ ids=$(tmux new-session -d -s "$session" -n 'Agent-Issue' -c "$HOME" -P -F '#{ses
 read -r session_id first_window pane <<< "$ids"
 tmux set-option -t "$session_id" destroy-unattached off
 setup_window "$first_window" "$pane" "claude 'continue 550-ceilo-agent-vm-impl'" yes
+# Agent VM is only watched, so nesting its tmux in a pane costs nothing. Watch
+# the newest run or rebase: a batch's progress session and failed runs linger.
+# shellcheck disable=SC2016 # expands on the VM, not here
+agent_vm_watch='s=$(tmux ls -F "#{session_created} #{session_name}" 2>/dev/null | grep -E " (run|rebase)-" | sort -n | tail -n 1 | cut -d " " -f 2); if [ -n "$s" ]; then exec tmux attach -t "=$s"; else echo "No agent run on the VM."; fi'
+tmux split-window -d -h -t "$pane" -c "$HOME" bash -c "$wait_loop" 'Agent VM' ssh -t ceilo "$agent_vm_watch"
 
 new_window 'Codex' "$repo_root" 'codex' yes
 new_window 'Claude' "$repo_root" 'claude' yes
