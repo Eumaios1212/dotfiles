@@ -118,9 +118,9 @@ it without attaching. Other hosts refuse to launch this layout.
 |---|---|---|
 | hbot (kitty tab) | Home | `ssh -t hbot tmux attach -t ceilo`; press Enter |
 | Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl`; right pane: newest agent run on `ceilo`, press Enter |
+| Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
 | Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
 | Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
-| Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
 | 550 Shell | Home | Plain terminal |
 
 The kitty tab running the local tmux session is titled 550 Main. hbot keeps its own

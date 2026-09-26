@@ -100,9 +100,9 @@ setup_window "$first_window" "$pane" "claude 'continue 550-ceilo-agent-vm-impl'"
 agent_vm_watch='s=$(tmux ls -F "#{session_created} #{session_name}" 2>/dev/null | grep -E " (run|rebase)-" | sort -n | tail -n 1 | cut -d " " -f 2); if [ -n "$s" ]; then exec tmux attach -t "=$s"; else echo "No agent run on the VM."; fi'
 tmux split-window -d -h -t "$pane" -c "$HOME" bash -c "$wait_loop" 'Agent VM' ssh -t ceilo "$agent_vm_watch"
 
+new_window 'Pr-Rev: ceilo' "$repo_root/ceilo" 'claude' yes
 new_window 'Codex' "$repo_root" 'codex' yes
 new_window 'Claude' "$repo_root" 'claude' yes
-new_window 'Pr-Rev: ceilo' "$repo_root/ceilo" 'claude' yes
 new_window '550 Shell' "$HOME" '' no
 
 tmux select-window -t "$first_window"
