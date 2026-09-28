@@ -57,8 +57,10 @@ reattach_views() {
         'tmux attach -t =ceilo || echo "No ceilo tmux session. Start it with hbot-session from a plain SSH terminal, not from Herdr."'
     # Zano wallets on 8056: attach only, never start them from here.
     reattach 8056 zano 'tmux attach -t =zano || echo "No zano tmux session on 8056; nothing was started."'
-    # Paseo's daemon log (George's voice service); read-only follow.
-    reattach paseo paseo-log 'journalctl --user -u paseo.service -f'
+    # Paseo's daemon log (George's voice service), readable and noise-free;
+    # paseo-log lives on paseo, outside its shell PATH; ~ expands there.
+    # shellcheck disable=SC2088
+    reattach paseo paseo-log '~/.local/bin/paseo-log'
 }
 
 if $detached || [[ -n ${HERDR_PANE_ID:-} ]]; then
