@@ -1,109 +1,67 @@
 #!/usr/bin/env bash
-# Recreate the 550 desktop terminal layout. The watch-only Agent VM session is a
-# pane beside Agent-Issue; hbot gets its own kitty tab (not nested tmux, so its
-# key bindings work). Both remote views wait for Enter.
-set -euo pipefail
+# The everyday 550 entrypoint: one Herdr window showing 550 and hbot.
+# Herdr restores its workspaces and reopens each agent's last conversation
+# itself. This script only makes sure hbot's Herdr runs under its memory cap
+# and brings back the two view panes, which Herdr restores as empty shells.
+set -u
 
 detached=false
 case "${1:-}" in
     '') ;;
-    --detached) detached=true; shift ;;
+    --detached) detached=true ;;
     -h|--help)
-        printf 'Usage: 550-session [--detached]\nCreate or attach to the 550 workspace. The Agent VM pane and hbot kitty tab wait for Enter.\n'
+        printf 'Usage: 550-session [--detached]\nOpen Herdr on 550 (with hbot) and reattach the Agent VM and stack views.\n'
         exit 0 ;;
     *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
 esac
-if (( $# )); then
-    printf 'Usage: 550-session [--detached]\n' >&2
-    exit 2
-fi
 if [[ $(hostname -s) != 550 ]]; then
-    printf 'This workspace launcher is for host 550 only.\n' >&2
+    printf 'This launcher is for host 550 only.\n' >&2
     exit 1
 fi
-command -v tmux >/dev/null || { printf 'tmux is required.\n' >&2; exit 1; }
 
-session=550
-repo_root=/mnt/md0/repos/homeric-freedom
+herdr=$HOME/.local/bin/herdr
 
-attach() {
-    if $detached; then
-        printf 'Session %s is ready. Attach with: tmux attach -t =%s\n' "$session" "$session"
-    elif [[ -n ${TMUX:-} ]]; then
-        exec tmux switch-client -t "=$session"
-    else
-        exec tmux attach-session -t "=$session"
+# hbot's server must come from its capped service. If it were missing, the
+# saved-machine connection would start an uncapped one instead.
+timeout 20 ssh -o BatchMode=yes hbot systemctl --user start herdr-hbot.service ||
+    printf 'hbot: could not ensure its Herdr service; hbot may be offline.\n' >&2
+
+# Run $3 in the pane labelled $2 (on machine $1; empty means 550), but only
+# while that pane is sitting at an idle shell prompt.
+reattach() {
+    local target=() pane info
+    [[ -n $1 ]] && target=(--machine "$1")
+    pane=$(timeout 20 "$herdr" "${target[@]}" pane list 2>/dev/null |
+        jq -r --arg l "$2" '.result.panes[] | select(.label == $l) | .pane_id' | head -n 1)
+    if [[ -z $pane ]]; then
+        printf '%s: no pane labelled %s to reattach.\n' "${1:-550}" "$2" >&2
+        return
     fi
+    info=$(timeout 20 "$herdr" "${target[@]}" pane process-info --pane "$pane" 2>/dev/null) || return
+    jq -e '.result.process_info
+        | .foreground_process_group_id == .shell_pid and (.foreground_processes | length) == 1' \
+        <<<"$info" >/dev/null || return 0
+    timeout 20 "$herdr" "${target[@]}" pane run "$pane" "$3" >/dev/null
 }
 
-if tmux has-session -t "=$session" 2>/dev/null; then
-    attach
+reattach_views() {
+    # Agents only resume once a client is attached, so wait for the server.
+    for _ in $(seq 30); do
+        "$herdr" status server 2>/dev/null | grep -q '^status: running' && break
+        sleep 1
+    done
+    reattach '' agent-vm 550-agent-vm-view
+    # Attach only: starting the stack's tmux from inside Herdr would put the
+    # trading stack under the agents' cap and tie it to Herdr's lifetime.
+    reattach hbot stack \
+        'tmux attach -t =ceilo || echo "No ceilo tmux session. Start it with hbot-session from a plain SSH terminal, not from Herdr."'
+}
+
+if $detached || [[ -n ${HERDR_PANE_ID:-} ]]; then
+    "$herdr" status server 2>/dev/null | grep -q '^status: running' ||
+        { printf 'The local Herdr server is not running; run 550-session from Kitty.\n' >&2; exit 1; }
+    reattach_views
     exit 0
 fi
-
-# Check everything before creating windows, so a missing installation is clear.
-for directory in "$repo_root" "$repo_root/ceilo"; do
-    [[ -d $directory ]] || { printf 'Missing directory: %s\n' "$directory" >&2; exit 1; }
-done
-for program in claude codex ssh kitty; do
-    command -v "$program" >/dev/null || { printf 'Missing command: %s\n' "$program" >&2; exit 1; }
-done
-if ! $detached && [[ -z ${TMUX:-} ]] && [[ ! -t 0 ]]; then
-    printf 'Run from a terminal, or use --detached.\n' >&2
-    exit 1
-fi
-
-# Remote views wait for Enter; Enter (re)connects and Ctrl-D closes the view.
-# shellcheck disable=SC2016 # expands in the view's own shell
-wait_loop='while printf "Press Enter to connect: %s\n" "$0"; read -r; do "$@"; done'
-
-# Nested tmux would swallow hbot's keys, so it gets its own tab in the kitty
-# window running this script.
-remote_tab() {
-    local title=$1; shift
-    kitty @ launch --type=tab --tab-title "$title" --keep-focus bash -c "$wait_loop" "$title" "$@" >/dev/null
-}
-if [[ -n ${KITTY_WINDOW_ID:-} && -z ${TMUX:-} ]]; then
-    remote_tab 'hbot' ssh -t hbot tmux attach -t ceilo
-    kitty @ set-tab-title '550 Main'
-else
-    printf 'Not run directly in kitty; skipping the hbot tab.\n' >&2
-fi
-
-# Use IDs for all targets: display names can contain spaces and tmux's colon.
-setup_window() {
-    local window=$1 pane=$2 command=$3 run=$4
-    tmux set-option -w -t "$window" automatic-rename off
-    tmux set-option -w -t "$window" allow-rename off
-    if [[ -n $command ]]; then
-        tmux send-keys -t "$pane" -l -- "$command"
-        if [[ $run == yes ]]; then
-            tmux send-keys -t "$pane" Enter
-        fi
-    fi
-}
-
-new_window() {
-    local title=$1 directory=$2 command=$3 run=$4 ids window pane
-    ids=$(tmux new-window -d -t "$session_id:" -n "$title" -c "$directory" -P -F '#{window_id} #{pane_id}')
-    read -r window pane <<< "$ids"
-    setup_window "$window" "$pane" "$command" "$run"
-}
-
-ids=$(tmux new-session -d -s "$session" -n 'Agent-Issue' -c "$HOME" -P -F '#{session_id} #{window_id} #{pane_id}')
-read -r session_id first_window pane <<< "$ids"
-tmux set-option -t "$session_id" destroy-unattached off
-setup_window "$first_window" "$pane" "claude 'continue 550-ceilo-agent-vm-impl'" yes
-# Agent VM is only watched, so nesting its tmux in a pane costs nothing. Watch
-# the newest run or rebase: a batch's progress session and failed runs linger.
-# shellcheck disable=SC2016 # expands on the VM, not here
-agent_vm_watch='s=$(tmux ls -F "#{session_created} #{session_name}" 2>/dev/null | grep -E " (run|rebase)-" | sort -n | tail -n 1 | cut -d " " -f 2); if [ -n "$s" ]; then exec tmux attach -t "=$s"; else echo "No agent run on the VM."; fi'
-tmux split-window -d -h -t "$pane" -c "$HOME" bash -c "$wait_loop" 'Agent VM' ssh -t ceilo "$agent_vm_watch"
-
-new_window 'Pr-Rev: ceilo' "$repo_root/ceilo" 'claude' yes
-new_window 'Codex' "$repo_root" 'codex' yes
-new_window 'Claude' "$repo_root" 'claude' yes
-new_window '550 Shell' "$HOME" '' no
-
-tmux select-window -t "$first_window"
-attach
+reattach_views >/dev/null 2>&1 &
+exec "$herdr"
