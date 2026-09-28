@@ -55,6 +55,8 @@ reattach_views() {
     # trading stack under the agents' cap and tie it to Herdr's lifetime.
     reattach hbot stack \
         'tmux attach -t =ceilo || echo "No ceilo tmux session. Start it with hbot-session from a plain SSH terminal, not from Herdr."'
+    # Zano wallets on 8056: attach only, never start them from here.
+    reattach 8056 zano 'tmux attach -t =zano || echo "No zano tmux session on 8056; nothing was started."'
 }
 
 if $detached || [[ -n ${HERDR_PANE_ID:-} ]]; then
