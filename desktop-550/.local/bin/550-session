@@ -20,6 +20,15 @@ if [[ $(hostname -s) != 550 ]]; then
 fi
 
 herdr=$HOME/.local/bin/herdr
+key=$HOME/.ssh/eumaios
+
+# Herdr reaches its machines without prompting, so the key must already be in
+# the agent (it is empty after a reboot). Ask only when someone can answer.
+if ! $detached && [[ -z ${HERDR_PANE_ID:-} && -t 0 ]] &&
+    ! ssh-add -T "$key.pub" >/dev/null 2>&1; then
+    ssh-add -t 57600 "$key" ||
+        printf 'SSH key not unlocked; the remote machines will not connect.\n' >&2
+fi
 
 # hbot's server must come from its capped service. If it were missing, the
 # saved-machine connection would start an uncapped one instead.
