@@ -70,6 +70,9 @@ reattach_views() {
     # paseo-log lives on paseo, outside its shell PATH; ~ expands there.
     # shellcheck disable=SC2088
     reattach paseo paseo-log '~/.local/bin/paseo-log'
+    # monerod's journal on monero; same shape as paseo-log.
+    # shellcheck disable=SC2088
+    reattach monero monerod-log '~/.local/bin/monerod-log'
 }
 
 if $detached || [[ -n ${HERDR_PANE_ID:-} ]]; then
