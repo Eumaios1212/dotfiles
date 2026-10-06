@@ -108,37 +108,26 @@ stow -D bash
 
 ## 550 Desktop Workspace
 
-`desktop-550/.local/bin/550-session` provides the host-550-only tmux workspace.
-Install just this package with `stow --dir="$HOME/.dotfiles" --target="$HOME" desktop-550`,
-then run `550-session` in Kitty. It creates session `550` or attaches to the existing
-session; from inside tmux it switches the client. `550-session --detached` creates
-it without attaching. Other hosts refuse to launch this layout.
+`desktop-550/.local/bin/550-session` is the everyday entrypoint on host 550: it opens
+Herdr, which shows 550's own workspaces plus its saved SSH machines.
+Herdr restores its workspaces and reopens each agent's last conversation itself.
+Other hosts refuse to launch it.
 
-| Window | Directory | Startup |
-|---|---|---|
-| hbot (kitty tab) | Home | `ssh -t hbot tmux attach -t ceilo`; press Enter |
-| Agent-Issue | Home | Claude, resuming `continue 550-ceilo-agent-vm-impl`; right pane: newest agent run on `ceilo`, press Enter |
-| Pr-Rev: ceilo | `/mnt/md0/repos/homeric-freedom/ceilo` | Claude |
-| Codex | `/mnt/md0/repos/homeric-freedom` | Codex |
-| Claude | `/mnt/md0/repos/homeric-freedom` | Claude |
-| 550 Shell | Home | Plain terminal |
+Install just this package with `stow --dir="$HOME/.dotfiles" --target="$HOME" desktop-550`
+(`bootstrap.sh` deliberately skips `desktop-550/`), then run `550-session` in Kitty.
 
-The kitty tab running the local tmux session is titled 550 Main. hbot keeps its own
-kitty tab so its key bindings work; the Agent VM session is only watched, so it sits
-in a pane beside Agent-Issue. The remote views only attach to sessions already
-running on those hosts; Enter reconnects and Ctrl-D closes the view. The Agent VM
-pane attaches to the newest `run-` or `rebase-` session, so during a batch it shows the
-current issue; when that run ends, press Enter to follow the next one.
-Window names are pinned against automatic/application renaming. To adjust the
-layout, edit the launcher's window declarations; an existing session is left intact.
+The script only does what Herdr cannot restore on its own:
 
-Agent-Issue resumes the agent-VM project doc; the other agent windows start fresh
-conversations (use the agent's own resume command when needed). Detach with Ctrl+A, then D. Closing Kitty leaves local tmux running;
-rebooting 550 requires recreating the layout and resuming conversations separately.
-The shared tmux prefix also applies remotely: Ctrl+A, Ctrl+A sends a prefix to the
-inner session. No existing Kitty terminals are moved or closed by the launcher.
+- checks the SSH key is loaded (Herdr connects to machines without prompting);
+- makes sure hbot's Herdr runs from its capped service (`herdr-hbot.service`), so the
+  saved-machine connection never starts an uncapped one;
+- re-runs the view commands in panes that Herdr restores as empty shells, by pane label
+  and only when the pane is at an idle prompt: `agent-vm` (550), `stack` (hbot, attach to
+  `tmux ceilo` only), `zano` (8056, attach only), `paseo-log`, `monerod-log` (monero),
+  `bsx-log` (bsx), and `bsx-ui` (the SSH tunnel to BasicSwap's web UI, which must run on 550).
 
----
+`550-session --detached`, or running it from inside a Herdr pane, skips opening Herdr and
+only reattaches those views to a server that is already running.
 
 ## Maintainer
 
