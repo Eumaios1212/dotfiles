@@ -73,6 +73,11 @@ reattach_views() {
     # monerod's journal on monero; same shape as paseo-log.
     # shellcheck disable=SC2088
     reattach monero monerod-log '~/.local/bin/monerod-log'
+    # BasicSwap's log on bsx, and the SSH tunnel to its web UI (runs on 550,
+    # so it must be a 550 pane: it forwards 12700 + 11700 to localhost).
+    # shellcheck disable=SC2088
+    reattach bsx bsx-log '~/.local/bin/bsx-log'
+    reattach '' bsx-ui 'ssh bsx-ui'
 }
 
 if $detached || [[ -n ${HERDR_PANE_ID:-} ]]; then
