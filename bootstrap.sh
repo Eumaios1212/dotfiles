@@ -112,7 +112,7 @@ bootstrap_stow() {
   cleanup_conflicts "$HOME"
 
   for dir in */; do
-    [[ "$dir" == "apps/" || "$dir" == "install.d/" || ! -d "$dir" ]] && continue
+    [[ "$dir" == "apps/" || "$dir" == "install.d/" || "$dir" == "desktop-550/" || ! -d "$dir" ]] && continue
 
     if [[ "$dir" == "bash-root/" ]]; then
       echo "🧹 Checking for conflicting dotfiles in /root..."
