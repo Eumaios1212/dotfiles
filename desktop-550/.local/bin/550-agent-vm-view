@@ -6,7 +6,7 @@ if [[ $(hostname -s) != 550 ]]; then
     exit 1
 fi
 # Evaluated on the VM after the operator presses Enter.
-agent_vm_watch='s=$(tmux ls -F "#{session_created} #{session_name}" 2>/dev/null | grep -E " (run|rebase)-" | sort -n | tail -n 1 | cut -d " " -f 2); if [ -n "$s" ]; then exec tmux attach -t "=$s"; else echo "No agent run on the VM."; fi'
+agent_vm_watch='s=$(tmux ls -F "#{session_created} #{session_name}" 2>/dev/null | grep -E " (run|rebase|resume)-" | sort -n | tail -n 1 | cut -d " " -f 2); if [ -n "$s" ]; then exec tmux attach -t "=$s"; else echo "No agent run on the VM."; fi'
 while printf 'Press Enter to connect: Agent VM\n'; IFS= read -r; do
     ssh -t ceilo "$agent_vm_watch" || printf 'VM connection ended; press Enter to retry.\n' >&2
 done
