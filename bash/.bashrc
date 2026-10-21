@@ -218,3 +218,4 @@ if [ -d /usr/local/go/bin ]; then
     *) export PATH="$PATH:/usr/local/go/bin" ;;
   esac
 fi
+alias claude2='CLAUDE_CONFIG_DIR=$HOME/.claude2 claude'
