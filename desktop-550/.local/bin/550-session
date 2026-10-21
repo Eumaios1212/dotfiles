@@ -10,7 +10,7 @@ case "${1:-}" in
     '') ;;
     --detached) detached=true ;;
     -h|--help)
-        printf 'Usage: 550-session [--detached]\nOpen Herdr on 550 (with hbot) and reattach the Agent VM and stack views.\n'
+        printf 'Usage: 550-session [--detached]\nOpen Herdr on 550 (with hbot) and reattach the Agent VM, plan review and stack views.\n'
         exit 0 ;;
     *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
 esac
@@ -60,6 +60,7 @@ reattach_views() {
         sleep 1
     done
     reattach '' agent-vm 550-agent-vm-view
+    reattach '' plan-vm 550-plan-vm-view
     # Attach only: starting the stack's tmux from inside Herdr would put the
     # trading stack under the agents' cap and tie it to Herdr's lifetime.
     reattach hbot stack \

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Watch the VM's newest plan review (tmux session plan-<repo>-<N>); never start or restart VM work.
+# Twin of 550-agent-vm-view, which shows the newest agent run.
+set -u
+if [[ $(hostname -s) != 550 ]]; then
+    printf 'This VM view belongs to 550.\n' >&2
+    exit 1
+fi
+# Evaluated on the VM after the operator presses Enter.
+plan_vm_watch='s=$(tmux ls -F "#{session_created} #{session_name}" 2>/dev/null | grep -E " plan-" | sort -n | tail -n 1 | cut -d " " -f 2); if [ -n "$s" ]; then exec tmux attach -t "=$s"; else echo "No plan review on the VM."; fi'
+while printf 'Press Enter to connect: Plan reviews on the VM\n'; IFS= read -r; do
+    ssh -t ceilo "$plan_vm_watch" || printf 'VM connection ended; press Enter to retry.\n' >&2
+done
