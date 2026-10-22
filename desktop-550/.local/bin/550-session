@@ -61,6 +61,10 @@ reattach_views() {
     done
     reattach '' agent-vm 550-agent-vm-view
     reattach '' plan-vm 550-plan-vm-view
+    # The second Claude account (the 550-2 tab); same as the claude2 alias,
+    # spelled out because pane run may not read the interactive shell's aliases.
+    # shellcheck disable=SC2016
+    reattach '' claude2 'CLAUDE_CONFIG_DIR=$HOME/.claude2 claude'
     # Attach only: starting the stack's tmux from inside Herdr would put the
     # trading stack under the agents' cap and tie it to Herdr's lifetime.
     reattach hbot stack \
