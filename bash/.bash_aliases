@@ -75,9 +75,9 @@ alias tmuxhelp='printf "%s\n" \
 "" \
 "Note: C-a represents your custom tmux prefix (Ctrl-a)." | less'
 
-alias addkey='ssh-add -t 57600 ~/.ssh/eumaios; gpg-connect-agent "clear_passphrase --mode=normal 8F70D8EF716165585690EB67AE92547CA7CBE034" /bye >/dev/null; echo | gpg --yes --local-user 695AA4A0F1FFB55F -o /dev/null --clearsign'
-	#    Load my GitHub/SSH key (~/.ssh/eumaios) into the ssh-agent for 16 hours.
-	#    Prompts once for the passphrase; auto-expires after 57600s (-t 57600).
+alias addkey='ssh-add -t 86400~/.ssh/eumaios; gpg-connect-agent "clear_passphrase --mode=normal 8F70D8EF716165585690EB67AE92547CA7CBE034" /bye >/dev/null; echo | gpg --yes --local-user 695AA4A0F1FFB55F -o /dev/null --clearsign'
+	#    Load my GitHub/SSH key (~/.ssh/eumaios) into the ssh-agent for 24 hours.
+	#    Prompts once for the passphrase; auto-expires after 86400s (-t 86400).
 	#    Used for every host in ~/.ssh/config.
 	#    Then prime gpg-agent with a throwaway signature using my GPG key
 	#    (695AA4A0F1FFB55F): prompts once for the GPG passphrase and caches it
